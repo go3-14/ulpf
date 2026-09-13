@@ -1,0 +1,21 @@
+import csv
+from io import StringIO
+from normalisation.event import NormalizedEvent
+
+
+def parse(log):
+
+    reader = csv.DictReader(StringIO(log))
+
+    data = next(reader)
+
+    return NormalizedEvent(
+        event_type=data.get("event"),
+        timestamp=data.get("timestamp"),
+        username=data.get("user"),
+        source_ip=data.get("src_ip"),
+        destination_ip=data.get("dst_ip"),
+        action=data.get("action"),
+        status=data.get("status"),
+        raw_data=data
+    )
