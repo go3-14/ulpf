@@ -1,0 +1,6 @@
+<134>Jan 10 10:00:00 fw01 %ASA-6-302013: Built inbound TCP connection 12345 for outside:192.168.1.50/49152 (192.168.1.50/49152) to inside:10.0.0.5/80 (10.0.0.5/80)
+<134>Jan 10 10:00:01 fw01 %ASA-6-302014: Teardown TCP connection 12345 for outside:192.168.1.50/49152 to inside:10.0.0.5/80 duration 0:00:05 bytes 1024
+<134>Jan 10 10:00:02 fw01 %ASA-4-106023: Deny tcp src outside:203.0.113.10/53 dst inside:10.0.0.10/443 by access-group "outside_in" [0x0, 0x0]
+<134>Jan 10 10:00:03 fw01 %ASA-5-305011: Built dynamic TCP translation from inside:10.0.0.5/80 to outside:192.168.1.50/80
+<134>Jan 10 10:00:04 fw01 %ASA-6-302015: Built outbound UDP connection 54321 for inside:10.0.0.5/5353 to outside:8.8.8.8/53
+MALFORMED_LINE_NON_SYSLOG_JUNK_DATA_WITHOUT_HEADER

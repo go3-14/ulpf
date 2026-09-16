@@ -1,0 +1,48 @@
+source: generic_syslog
+format: syslog
+description: "Generic Syslog log source fallback"
+
+ocsf:
+  version: "1.3.0"
+  class_uid: 4001
+  category_uid: 4
+
+priority: 0
+
+constants:
+  metadata.product.vendor_name: "Generic"
+  metadata.product.name: "Syslog Source"
+  connection_info.direction_id: 0
+
+time:
+  field: timestamp
+  formats:
+    - "%b %d %H:%M:%S"
+    - "%b %d %Y %H:%M:%S"
+    - "%Y-%m-%dT%H:%M:%S"
+  assume_year: current
+  timezone: "UTC"
+
+field_map:
+  src:     { to: src_endpoint.ip,               type: ip }
+  spt:     { to: src_endpoint.port,             type: port }
+  dst:     { to: dst_endpoint.ip,               type: ip }
+  dpt:     { to: dst_endpoint.port,             type: port }
+  proto:   { to: connection_info.protocol_name, type: str }
+  tag:     { to: metadata.event_code,          type: str }
+
+  act:
+    to: activity_id
+    type: enum
+    values: { Built: 1, allow: 1, Accept: 1, Deny: 5, Quarantine: 5 }
+    default: 99
+
+  action:
+    to: activity_id
+    type: enum
+    values: { Built: 1, allow: 1, Accept: 1, Deny: 5, Quarantine: 5 }
+    default: 99
+
+defaults:
+  activity_id: 6
+  severity_id: 1

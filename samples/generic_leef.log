@@ -1,0 +1,3 @@
+LEEF:1.0|VendorName|ProductName|1.0|100|devTime=Jan 10 2026 10:00:00 GMT	src=192.168.1.10	srcPort=12345	dst=10.0.0.1	dstPort=80	proto=TCP	action=Built
+LEEF:2.0|VendorName|ProductName|2.0|101|^|devTime=Jan 10 2026 10:00:01 GMT^src=192.168.1.11^srcPort=54321^dst=10.0.0.2^dstPort=443^proto=TCP^action=Deny
+INVALID_LEEF_NOT_PARSEABLE

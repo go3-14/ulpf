@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "network_activity.schema.json",
+  "title": "Network Activity",
+  "type": "object",
+  "required": [
+    "class_uid",
+    "category_uid",
+    "activity_id",
+    "type_uid",
+    "time",
+    "severity_id",
+    "metadata"
+  ],
+  "properties": {
+    "class_uid": {
+      "type": "integer",
+      "const": 4001
+    },
+    "category_uid": {
+      "type": "integer",
+      "const": 4
+    },
+    "activity_id": {
+      "type": "integer"
+    },
+    "type_uid": {
+      "type": "integer"
+    },
+    "time": {
+      "type": "integer"
+    },
+    "severity_id": {
+      "type": "integer"
+    },
+    "status_id": {
+      "type": "integer"
+    },
+    "disposition_id": {
+      "type": "integer"
+    },
+    "message": {
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "objects/metadata.json"
+    },
+    "src_endpoint": {
+      "$ref": "objects/network_endpoint.json"
+    },
+    "dst_endpoint": {
+      "$ref": "objects/network_endpoint.json"
+    },
+    "connection_info": {
+      "$ref": "objects/connection_info.json"
+    },
+    "unmapped": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

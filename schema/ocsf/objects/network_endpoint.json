@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objects/network_endpoint.json",
+  "title": "Network Endpoint Object",
+  "type": "object",
+  "properties": {
+    "ip": {
+      "type": "string"
+    },
+    "port": {
+      "type": "integer"
+    },
+    "hostname": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "mac": {
+      "type": "string"
+    },
+    "interface_name": {
+      "type": "string"
+    }
+  }
+}

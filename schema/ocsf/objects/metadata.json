@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objects/metadata.json",
+  "title": "Metadata Object",
+  "type": "object",
+  "required": [
+    "uid",
+    "version",
+    "logged_time",
+    "product"
+  ],
+  "properties": {
+    "uid": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "logged_time": {
+      "type": "integer"
+    },
+    "original_time": {
+      "type": "string"
+    },
+    "event_code": {
+      "type": "string"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product": {
+      "type": "object",
+      "required": [
+        "name",
+        "vendor_name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

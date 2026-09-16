@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objects/connection_info.json",
+  "title": "Connection Info Object",
+  "type": "object",
+  "properties": {
+    "protocol_name": {
+      "type": "string"
+    },
+    "protocol_num": {
+      "type": "integer"
+    },
+    "direction_id": {
+      "type": "integer"
+    },
+    "boundary_id": {
+      "type": "integer"
+    },
+    "tcp_flags": {
+      "type": "integer"
+    }
+  }
+}

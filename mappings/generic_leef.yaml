@@ -1,0 +1,50 @@
+source: generic_leef
+format: leef
+description: "Generic LEEF log source fallback"
+
+ocsf:
+  version: "1.3.0"
+  class_uid: 4001
+  category_uid: 4
+
+priority: 0
+
+constants:
+  metadata.product.vendor_name: "Generic"
+  metadata.product.name: "LEEF Source"
+  connection_info.direction_id: 0
+
+time:
+  field: devTime
+  formats:
+    - "%b %d %Y %H:%M:%S %Z"
+    - "%b %d %Y %H:%M:%S"
+    - "%b %d %Y %H:%M:%S.%f"
+  assume_year: current
+  timezone: "UTC"
+
+field_map:
+  src:     { to: src_endpoint.ip,               type: ip }
+  srcPort: { to: src_endpoint.port,             type: port }
+  spt:     { to: src_endpoint.port,             type: port }
+  dst:     { to: dst_endpoint.ip,               type: ip }
+  dstPort: { to: dst_endpoint.port,             type: port }
+  dpt:     { to: dst_endpoint.port,             type: port }
+  proto:   { to: connection_info.protocol_name, type: str }
+  event_id: { to: metadata.event_code,          type: str }
+
+  action:
+    to: activity_id
+    type: enum
+    values: { Built: 1, allow: 1, Accept: 1, accept: 1, Deny: 5, deny: 5, reset: 3 }
+    default: 99
+
+  act:
+    to: activity_id
+    type: enum
+    values: { Built: 1, allow: 1, Accept: 1, accept: 1, Deny: 5, deny: 5, reset: 3 }
+    default: 99
+
+defaults:
+  activity_id: 6
+  severity_id: 1

@@ -1,0 +1,4 @@
+<134>Jan 10 10:00:00 PA-FW CEF:0|Palo Alto Networks|PAN-OS|10.1.0|TRAFFIC|end|1|rt=Jan 10 2026 10:00:00 src=192.168.1.100 spt=54321 dst=198.51.100.20 dpt=443 proto=tcp action=allow
+<134>Jan 10 10:00:01 PA-FW CEF:0|Palo Alto Networks|PAN-OS|10.1.0|TRAFFIC|drop|5|rt=Jan 10 2026 10:00:01 src=203.0.113.50 spt=1234 dst=10.0.0.1 dpt=22 proto=tcp action=deny
+<134>Jan 10 10:00:02 PA-FW CEF:0|Palo Alto Networks|PAN-OS|10.1.0|THREAT|vulnerability|8|rt=Jan 10 2026 10:00:02 src=192.168.1.105 spt=4000 dst=198.51.100.25 dpt=80 proto=tcp action=reset
+INVALID_CEF_HEADER_CORRUPTED_PIPE_DATA
