@@ -1,0 +1,37 @@
+source: generic_json
+format: json
+description: "Generic JSON network activity"
+ocsf:
+  version: "subset-1"
+  class_uid: 4001
+  category_uid: 4
+priority: 0
+constants:
+  metadata.product.vendor_name: "Generic"
+  metadata.product.name: "JSON Device"
+  connection_info.direction_id: 0
+time:
+  field: timestamp
+  formats:
+    - "%Y-%m-%dT%H:%M:%SZ"
+  timezone: "UTC"
+field_map:
+  src_ip: { to: src_endpoint.ip, type: ip }
+  src_port: { to: src_endpoint.port, type: port }
+  dst_ip: { to: dst_endpoint.ip, type: ip }
+  dst_port: { to: dst_endpoint.port, type: port }
+  protocol: { to: connection_info.protocol_name, type: str }
+  event.code: { to: metadata.event_code, type: str }
+  action:
+    to: activity_id
+    type: enum
+    values: { allow: 1, deny: 5, reset: 3, traffic: 6 }
+    default: 6
+  severity:
+    to: severity_id
+    type: enum
+    values: { info: 1, low: 2, medium: 3, high: 5, critical: 6 }
+    default: 1
+defaults:
+  activity_id: 6
+  severity_id: 1

@@ -1,0 +1,44 @@
+source: cisco_asa
+format: syslog
+description: "Cisco ASA firewall via syslog"
+ocsf:
+  version: "subset-1"
+  class_uid: 4001
+  category_uid: 4
+priority: 100
+match:
+  all:
+    - field: tag
+      regex: "^%ASA-"
+constants:
+  metadata.product.vendor_name: "Cisco"
+  metadata.product.name: "ASA"
+  connection_info.direction_id: 0
+time:
+  field: timestamp
+  formats:
+    - "%b %d %Y %H:%M:%S"
+    - "%b %d %H:%M:%S"
+  assume_year: current
+  timezone: "UTC"
+field_map:
+  src: { to: src_endpoint.ip, type: ip }
+  spt: { to: src_endpoint.port, type: port }
+  dst: { to: dst_endpoint.ip, type: ip }
+  dpt: { to: dst_endpoint.port, type: port }
+  proto: { to: connection_info.protocol_name, type: str }
+  ifname: { to: src_endpoint.interface_name, type: str }
+  msgid: { to: metadata.event_code, type: str }
+  action:
+    to: activity_id
+    type: enum
+    values: { Built: 1, Teardown: 2, Reset: 3, Deny: 5, Denied: 5 }
+    default: 99
+  severity:
+    to: severity_id
+    type: enum
+    values: { "0": 6, "1": 6, "2": 5, "3": 4, "4": 3, "5": 2, "6": 1, "7": 1 }
+    default: 1
+defaults:
+  activity_id: 6
+  severity_id: 1

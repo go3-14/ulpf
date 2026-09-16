@@ -1,0 +1,6 @@
+storage_data/
+spool/
+.git/
+__pycache__/
+.pytest_cache/
+*.pyc

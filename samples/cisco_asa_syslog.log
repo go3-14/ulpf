@@ -1,0 +1,5 @@
+<166>Jan 10 10:00:00 asa-fw %ASA-6-302013: Built outbound TCP connection 12345 for src outside:192.0.2.10/54321 dst inside:198.51.100.20/443
+<164>Jan 10 10:01:00 asa-fw %ASA-4-106023: Deny tcp src outside:203.0.113.10/44444 dst inside:198.51.100.25/22 by access-group "outside_access_in"
+<165>Jan 10 10:02:00 asa-fw %ASA-5-302014: Teardown TCP connection 12345 for src outside:192.0.2.10/54321 dst inside:198.51.100.20/443 duration 0:00:30 bytes 1234
+this is malformed syslog and should dead-letter
+<166>Jan 10 10:03:00 asa-fw %ASA-6-302013: Built inbound UDP connection 456 for src outside:192.0.2.55/53 dst inside:198.51.100.80/53000

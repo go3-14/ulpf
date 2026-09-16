@@ -1,0 +1,4 @@
+<134>Jan 10 10:00:00 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|Allowed traffic|3|src=192.0.2.10 spt=51515 dst=198.51.100.20 dpt=443 proto=tcp act=allow rule=internet-egress
+CEF:0|Palo Alto Networks|PAN-OS|10.2|THREAT|Denied traffic|6|src=203.0.113.10 spt=40000 dst=198.51.100.25 dpt=22 proto=tcp act=deny rule=ssh-block
+not a cef line
+<134>Jan 10 10:05:00 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|Reset traffic|5|src=192.0.2.77 spt=33333 dst=198.51.100.44 dpt=8443 proto=tcp act=reset

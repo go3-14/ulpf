@@ -1,0 +1,4 @@
+LEEF:1.0|ExampleVendor|Router|1.2|permit	src=192.0.2.10	srcPort=51515	dst=198.51.100.20	dstPort=443	proto=tcp	action=allow	severity=2	devTime=2026-09-15T10:00:00Z
+LEEF:2.0|ExampleVendor|VPN|2.0|deny|^|src=203.0.113.10^srcPort=44444^dst=198.51.100.25^dstPort=22^proto=tcp^action=deny^severity=5^devTime=2026-09-15T10:01:00Z
+LEEF broken line
+LEEF:1.0|ExampleVendor|Router|1.2|reset	src=192.0.2.55	srcPort=12345	dst=198.51.100.80	dstPort=53	proto=udp	action=reset	severity=3	devTime=2026-09-15T10:02:00Z

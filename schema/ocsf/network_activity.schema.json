@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "network_activity.schema.json",
+  "title": "ULPF trimmed OCSF Network Activity subset",
+  "type": "object",
+  "required": ["class_uid", "category_uid", "activity_id", "type_uid", "time", "severity_id", "metadata"],
+  "additionalProperties": true,
+  "properties": {
+    "class_uid": {"type": "integer", "const": 4001},
+    "category_uid": {"type": "integer", "const": 4},
+    "activity_id": {"type": "integer"},
+    "type_uid": {"type": "integer"},
+    "time": {"type": "integer"},
+    "severity_id": {"type": "integer"},
+    "metadata": {
+      "type": "object",
+      "required": ["uid", "version", "logged_time", "product", "labels"],
+      "additionalProperties": true,
+      "properties": {
+        "uid": {"type": "string"},
+        "version": {"type": "string"},
+        "logged_time": {"type": "integer"},
+        "original_time": {"type": "string"},
+        "event_code": {"type": "string"},
+        "product": {
+          "type": "object",
+          "required": ["name", "vendor_name"],
+          "additionalProperties": true,
+          "properties": {
+            "name": {"type": "string"},
+            "vendor_name": {"type": "string"}
+          }
+        },
+        "labels": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "src_endpoint": {"$ref": "objects/network_endpoint.json"},
+    "dst_endpoint": {"$ref": "objects/network_endpoint.json"},
+    "connection_info": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "protocol_name": {"type": "string"},
+        "direction_id": {"type": "integer"}
+      }
+    },
+    "unmapped": {"type": "object"}
+  }
+}

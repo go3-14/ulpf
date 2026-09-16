@@ -1,0 +1,4 @@
+{"timestamp":"2026-09-15T10:00:00Z","src_ip":"192.0.2.10","src_port":51515,"dst_ip":"198.51.100.20","dst_port":443,"protocol":"tcp","action":"allow","severity":"info","event":{"code":"json-allow"},"extra":{"policy":"egress"}}
+{"timestamp":"2026-09-15T10:01:00Z","src_ip":"203.0.113.10","src_port":44444,"dst_ip":"198.51.100.25","dst_port":22,"protocol":"tcp","action":"deny","severity":"high","event":{"code":"json-deny"}}
+{bad json line
+{"timestamp":"2026-09-15T10:02:00Z","src_ip":"192.0.2.55","src_port":12345,"dst_ip":"198.51.100.80","dst_port":53,"protocol":"udp","action":"traffic","severity":"low","event":{"code":"json-dns"}}

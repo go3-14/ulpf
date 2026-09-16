@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objects/network_endpoint.json",
+  "title": "ULPF trimmed OCSF Network Endpoint subset",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "ip": {"type": "string", "format": "ipv4"},
+    "port": {"type": "integer", "minimum": 0, "maximum": 65535},
+    "interface_name": {"type": "string"},
+    "hostname": {"type": "string"}
+  }
+}

@@ -1,0 +1,42 @@
+source: paloalto_cef
+format: cef
+description: "Palo Alto Networks CEF"
+ocsf:
+  version: "subset-1"
+  class_uid: 4001
+  category_uid: 4
+priority: 100
+match:
+  all:
+    - field: device_vendor
+      equals: "Palo Alto Networks"
+constants:
+  metadata.product.vendor_name: "Palo Alto Networks"
+  metadata.product.name: "PAN-OS"
+  connection_info.direction_id: 0
+time:
+  field: timestamp
+  formats:
+    - "%b %d %H:%M:%S"
+  assume_year: current
+  timezone: "UTC"
+field_map:
+  src: { to: src_endpoint.ip, type: ip }
+  spt: { to: src_endpoint.port, type: port }
+  dst: { to: dst_endpoint.ip, type: ip }
+  dpt: { to: dst_endpoint.port, type: port }
+  proto: { to: connection_info.protocol_name, type: str }
+  signature_id: { to: metadata.event_code, type: str }
+  act:
+    to: activity_id
+    type: enum
+    values: { allow: 1, deny: 5, reset: 3 }
+    default: 6
+  cef_severity:
+    to: severity_id
+    type: enum
+    values: { "0": 1, "1": 1, "2": 2, "3": 2, "4": 3, "5": 3, "6": 4, "7": 4, "8": 5, "9": 6, "10": 6 }
+    default: 1
+defaults:
+  activity_id: 6
+  severity_id: 1
