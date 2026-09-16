@@ -1,0 +1,36 @@
+{
+  "sources": [
+    {
+      "id": "cisco_asa", "format": "syslog", "vendor": "Cisco",
+      "map": {
+        "src_ip": {"from": "src"}, "src_port": {"from": "src_port", "type": "int"},
+        "dst_ip": {"from": "dst"}, "dst_port": {"from": "dst_port", "type": "int"},
+        "protocol": {"from": "proto"}, "action": {"from": "action"}, "severity": {"from": "severity"}
+      }
+    },
+    {
+      "id": "paloalto_cef", "format": "cef", "vendor": "Palo Alto Networks",
+      "map": {
+        "src_ip": {"from": "src"}, "src_port": {"from": "spt", "type": "int"},
+        "dst_ip": {"from": "dst"}, "dst_port": {"from": "dpt", "type": "int"},
+        "protocol": {"from": "proto"}, "action": {"from": "act"}, "severity": {"from": "severity"}
+      }
+    },
+    {
+      "id": "generic_leef", "format": "leef", "vendor": "Generic",
+      "map": {
+        "src_ip": {"from": "src"}, "src_port": {"from": "srcPort", "type": "int"},
+        "dst_ip": {"from": "dst"}, "dst_port": {"from": "dstPort", "type": "int"},
+        "protocol": {"from": "proto"}, "action": {"from": "action"}, "severity": {"from": "severity"}
+      }
+    },
+    {
+      "id": "generic_json", "format": "json", "vendor": "Generic",
+      "map": {
+        "src_ip": {"from": "src_ip"}, "src_port": {"from": "src_port", "type": "int"},
+        "dst_ip": {"from": "dst_ip"}, "dst_port": {"from": "dst_port", "type": "int"},
+        "protocol": {"from": "protocol"}, "action": {"from": "action"}, "severity": {"from": "severity"}
+      }
+    }
+  ]
+}

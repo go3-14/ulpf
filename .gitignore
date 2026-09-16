@@ -3,3 +3,4 @@ spool/
 __pycache__/
 .pytest_cache/
 *.pyc
+output/
