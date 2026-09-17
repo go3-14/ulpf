@@ -1,0 +1,6 @@
+LEEF:1.0|Acme|Edge|1.0|1001|src=192.0.2.30	spt=51000	dst=198.51.100.30	dpt=443	proto=tcp	action=allow	devTime=Jan 10 2026 10:00:00
+LEEF:1.0|Acme|Edge|1.0|1002|src=192.0.2.31	spt=51001	dst=198.51.100.31	dpt=22	proto=tcp	action=deny	devTime=Jan 10 2026 10:00:01
+LEEF:2.0|Acme|Edge|2.0|1003|^|src=192.0.2.32^spt=51002^dst=198.51.100.32^dpt=53^proto=udp^action=allow^devTime=Jan 10 2026 10:00:02
+LEEF:2.0|Acme|Edge|2.0|1004|x09|src=192.0.2.33	spt=51003	dst=198.51.100.33	dpt=443	proto=tcp	action=drop	devTime=Jan 10 2026 10:00:03
+LEEF:1.0|Acme|Edge|1.0|1005|src=192.0.2.34	spt=51004	dst=198.51.100.34	dpt=8080	proto=tcp	action=allow	devTime=Jan 10 2026 10:00:04
+not a LEEF record
