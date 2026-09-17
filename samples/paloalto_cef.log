@@ -1,0 +1,6 @@
+<134>Jan 10 10:00:00 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|allow|3|src=192.0.2.10 spt=51514 dst=198.51.100.20 dpt=443 proto=tcp cs1Label=Rule cs1=web-allow
+<134>Jan 10 10:00:01 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|deny|5|src=192.0.2.11 spt=51515 dst=198.51.100.21 dpt=22 proto=tcp msg=SSH blocked by policy
+CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|allow|3|src=192.0.2.12 spt=53000 dst=198.51.100.22 dpt=53 proto=udp msg=DNS\|allowed
+<134>Jan 10 10:00:03 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|drop|4|src=192.0.2.13 spt=53001 dst=198.51.100.23 dpt=443 proto=tcp reason=policy\=deny
+<134>Jan 10 10:00:04 pa-fw CEF:0|Palo Alto Networks|PAN-OS|10.2|TRAFFIC|allow|3|src=192.0.2.14 spt=53002 dst=198.51.100.24 dpt=443 proto=tcp
+not a CEF record
