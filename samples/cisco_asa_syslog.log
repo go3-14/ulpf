@@ -1,0 +1,7 @@
+<166>Apr 27 11:31:23 asa-fw %ASA-6-302013: Built outbound TCP connection 2921 for outside:198.51.100.100/80 (198.51.100.100/80) to inside:10.1.1.154/58799 (10.165.200.226/58799)
+<164>Dec 27 14:58:25 asa-fw %ASA-4-106023: Deny tcp src outside:10.65.63.155/56166 dst inside:10.5.0.30/8000 by access-group "OUT-IN" [0x902a8ee8, 0x0]
+<166>Apr 27 11:32:00 asa-fw %ASA-6-302014: Teardown TCP connection 2921 for outside:198.51.100.100/80 to inside:10.1.1.154/58799 duration 0:00:30 bytes 0 SYN Timeout
+<166>Apr 27 11:32:04 asa-fw %ASA-6-302013: Built inbound TCP connection 11 for outside:10.1.2.1/21647 (10.1.2.1/21647) to inside:10.1.1.2/22 (10.1.1.2/22)
+<166>Apr 27 11:32:05 asa-fw %ASA-6-302014: Teardown TCP connection 11 for outside:10.1.2.1/21647 to inside:10.1.1.2/22 duration 0:00:00 bytes 0 TCP Reset
+<166>Apr 27 11:32:06 asa-fw %ASA-6-302015: Built outbound UDP connection 42 for outside:192.0.2.8/5353 to inside:10.0.0.53/5353
+malformed ASA line without a syslog envelope
