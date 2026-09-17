@@ -1,0 +1,6 @@
+{"timestamp":"2026-01-10T10:00:00Z","src_ip":"192.0.2.40","src_port":52000,"dst_ip":"198.51.100.40","dst_port":443,"protocol":"tcp","action":"allow","severity":"3","tags":["edge","web"],"user":{"name":"alice"}}
+{"timestamp":"2026-01-10T10:00:01Z","src_ip":"192.0.2.41","src_port":52001,"dst_ip":"198.51.100.41","dst_port":22,"protocol":"tcp","action":"deny","severity":"4","rule":{"id":"ssh-block"}}
+{"timestamp":"2026-01-10T10:00:02Z","src_ip":"192.0.2.42","src_port":52002,"dst_ip":"198.51.100.42","dst_port":53,"protocol":"udp","action":"allow","severity":3,"items":[{"name":"dns"},{"name":"query"}]}
+{"timestamp":"2026-01-10T10:00:03Z","src_ip":"192.0.2.43","src_port":52003,"dst_ip":"198.51.100.43","dst_port":443,"protocol":"tcp","action":"drop","severity":"5","tags":["blocked"]}
+{"timestamp":"2026-01-10T10:00:04Z","src_ip":"192.0.2.44","src_port":52004,"dst_ip":"198.51.100.44","dst_port":8080,"protocol":"tcp","action":"allow","severity":"2","meta":{"region":"test"}}
+not valid json

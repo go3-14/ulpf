@@ -1,0 +1,34 @@
+source: generic_json
+format: json
+description: "Generic JSON fallback"
+ocsf:
+  version: "1.9.0"
+  class_uid: 4001
+  category_uid: 4
+priority: 0
+constants:
+  connection_info.direction_id: 0
+time:
+  field: timestamp
+  formats: []
+  assume_year: none
+  timezone: UTC
+field_map:
+  src_ip: {to: src_endpoint.ip, type: ip}
+  src_port: {to: src_endpoint.port, type: port}
+  dst_ip: {to: dst_endpoint.ip, type: ip}
+  dst_port: {to: dst_endpoint.port, type: port}
+  protocol: {to: connection_info.protocol_name, type: str}
+  action:
+    to: activity_id
+    type: enum
+    values: {allow: 1, deny: 5, drop: 5}
+    default: 99
+  severity:
+    to: severity_id
+    type: enum
+    values: {"0": 6, "1": 6, "2": 5, "3": 4, "4": 3, "5": 2, "6": 1, "7": 1}
+    default: 1
+defaults:
+  activity_id: 6
+  severity_id: 1
