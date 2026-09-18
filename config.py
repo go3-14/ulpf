@@ -15,3 +15,4 @@ UDP_HOST = os.environ.get("ULPF_UDP_HOST", "0.0.0.0")
 UDP_PORT = int(os.environ.get("ULPF_UDP_PORT", "5514"))
 
 LOG_LEVEL = os.environ.get("ULPF_LOG_LEVEL", "INFO")
+POLL_INTERVAL = float(os.environ.get("ULPF_POLL_INTERVAL", "1.0"))

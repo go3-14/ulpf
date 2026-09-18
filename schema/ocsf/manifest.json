@@ -1,0 +1,12 @@
+{
+  "ocsf_version": "1.9.0",
+  "resources": [
+    {
+      "path": "classes/network_activity.json",
+      "sha256": "e2910d540e6160e4f12f363dbb937e20527f9098ec26fb5ea04fd364d2f4c087",
+      "source_url": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity?profiles=",
+      "uri": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity"
+    }
+  ],
+  "root_uri": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity"
+}

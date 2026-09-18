@@ -56,6 +56,18 @@ def parse_leef(raw_log: str) -> dict | None:
         elif len(raw_delim) == 1 and "=" not in raw_delim:
             delimiter = raw_delim
             extension_part_index = 6
+        elif len(parts) > 6 and all("=" in part for part in parts[5:]):
+            # Some devices emit a LEEF 2.0 header but retain the legacy pipe
+            # extension delimiter. Infer it only when multiple key/value
+            # segments make the intent unambiguous.
+            delimiter = "|"
+            extension_part_index = 5
+        else:
+            # LEEF 2.0 requires an explicit delimiter field; do not silently
+            # reinterpret the first extension attribute as a delimiter.
+            return None
+    elif parts[0] == "2.0":
+        return None
 
     extension_str = "|".join(parts[extension_part_index:]) if len(parts) > extension_part_index else ""
 

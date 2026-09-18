@@ -1,154 +1,129 @@
+"""Bundle the pinned OCSF Network Activity JSON Schema for offline validation.
+
+This is a development-time utility. Application modules must never import it.
+"""
+
+from __future__ import annotations
+
+import hashlib
 import json
-import os
 import pathlib
-import sys
+import shutil
+import urllib.parse
 import urllib.request
-import urllib.error
+from collections import deque
 
-SCHEMA_DIR = pathlib.Path(__file__).parent.parent / "schema" / "ocsf"
-OBJECTS_DIR = SCHEMA_DIR / "objects"
 
-def fetch_json(url: str) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": "ULPF-Schema-Fetcher/1.0"})
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+PINNED_OCSF_VERSION = "1.9.0"
+SCHEMA_SERVER = f"https://schema.ocsf.io/schema/{PINNED_OCSF_VERSION}"
+ROOT_URI = f"{SCHEMA_SERVER}/classes/network_activity"
+ROOT_FETCH_URL = f"{ROOT_URI}?profiles="
+OUTPUT_DIR = pathlib.Path(__file__).resolve().parents[1] / "schema" / "ocsf"
 
-def main():
-    SCHEMA_DIR.mkdir(parents=True, exist_ok=True)
-    OBJECTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Checking OCSF version...")
-    version = "1.3.0"
-    try:
-        ver_info = fetch_json("https://schema.ocsf.io/version")
-        if isinstance(ver_info, dict) and "version" in ver_info:
-            version = ver_info["version"]
-        elif isinstance(ver_info, str):
-            version = ver_info
-    except Exception as e:
-        print(f"Failed to fetch version online ({e}), falling back to 1.3.0")
+def _fetch_json(url: str) -> dict:
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "ULPF schema bundler (development only)"}
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        payload = response.read()
+    document = json.loads(payload.decode("utf-8"))
+    if not isinstance(document, dict):
+        raise ValueError(f"schema resource is not a JSON object: {url}")
+    return document
 
-    print(f"Using OCSF version: {version}")
 
-    # Fetch export schema or individual class schema
-    # OCSF API provides /api/v1/export/schema or class endpoints
-    # We can fetch the class schema for Network Activity (class_uid: 4001, category: network / uid 4)
-    # Or export/schema.json from github ocsf-schema
-    export_url = f"https://schema.ocsf.io/export/schema.json"
-    class_url = f"https://schema.ocsf.io/api/v1/classes/network_activity"
+def _references(value: object) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, dict):
+        ref = value.get("$ref")
+        if isinstance(ref, str):
+            found.add(ref)
+        for child in value.values():
+            found.update(_references(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.update(_references(child))
+    return found
 
-    schema_data = None
-    try:
-        print(f"Fetching network_activity class from {class_url}...")
-        schema_data = fetch_json(class_url)
-    except Exception as e:
-        print(f"Failed fetching class endpoint: {e}")
 
-    if not schema_data:
-        try:
-            print(f"Fetching export schema from {export_url}...")
-            export_data = fetch_json(export_url)
-            classes = export_data.get("classes", {})
-            if "network_activity" in classes:
-                schema_data = classes["network_activity"]
-        except Exception as e:
-            print(f"Failed fetching export schema: {e}")
+def _canonical_uri(ref: str, base_uri: str) -> str | None:
+    target, _fragment = urllib.parse.urldefrag(urllib.parse.urljoin(base_uri, ref))
+    parsed = urllib.parse.urlparse(target)
+    expected = urllib.parse.urlparse(SCHEMA_SERVER)
+    if parsed.scheme != expected.scheme or parsed.netloc != expected.netloc:
+        return None
+    versioned_prefix = f"/schema/{PINNED_OCSF_VERSION}/"
+    if parsed.path.startswith(versioned_prefix):
+        return target
+    if parsed.path.startswith("/schema/"):
+        relative = parsed.path.removeprefix("/schema/")
+        return f"{SCHEMA_SERVER}/{relative}"
+    return None
 
-    # If online fetch fails or returns non-standard jsonschema, we construct a fully compliant OCSF network activity Draft2020-12 schema
-    # matching official OCSF specification for class 4001 network_activity.
-    if schema_data and "$schema" in schema_data:
-        print("Saving fetched schema...")
-        (SCHEMA_DIR / "network_activity.schema.json").write_text(json.dumps(schema_data, indent=2))
-    else:
-        print("Constructing bundled OCSF 1.3.0 / 1.8.0 network_activity and object schemas...")
-        create_bundled_schemas(version)
 
-def create_bundled_schemas(version: str):
-    # Base network_activity schema
-    network_activity_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "network_activity.schema.json",
-        "title": "Network Activity",
-        "type": "object",
-        "required": ["class_uid", "category_uid", "activity_id", "type_uid", "time", "severity_id", "metadata"],
-        "properties": {
-            "class_uid": {"type": "integer", "const": 4001},
-            "category_uid": {"type": "integer", "const": 4},
-            "activity_id": {"type": "integer"},
-            "type_uid": {"type": "integer"},
-            "time": {"type": "integer"},
-            "severity_id": {"type": "integer"},
-            "status_id": {"type": "integer"},
-            "disposition_id": {"type": "integer"},
-            "message": {"type": "string"},
-            "metadata": {"$ref": "objects/metadata.json"},
-            "src_endpoint": {"$ref": "objects/network_endpoint.json"},
-            "dst_endpoint": {"$ref": "objects/network_endpoint.json"},
-            "connection_info": {"$ref": "objects/connection_info.json"},
-            "unmapped": {"type": "object"}
-        },
-        "additionalProperties": True
-    }
+def _relative_path(uri: str) -> pathlib.Path:
+    parsed = urllib.parse.urlparse(uri)
+    prefix = f"/schema/{PINNED_OCSF_VERSION}/"
+    relative = pathlib.PurePosixPath(parsed.path.removeprefix(prefix))
+    if not relative.parts or ".." in relative.parts:
+        raise ValueError(f"unsafe schema URI: {uri}")
+    return pathlib.Path(*relative.parts).with_suffix(".json")
 
-    metadata_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "objects/metadata.json",
-        "title": "Metadata Object",
-        "type": "object",
-        "required": ["uid", "version", "logged_time", "product"],
-        "properties": {
-            "uid": {"type": "string"},
-            "version": {"type": "string"},
-            "logged_time": {"type": "integer"},
-            "original_time": {"type": "string"},
-            "event_code": {"type": "string"},
-            "labels": {"type": "array", "items": {"type": "string"}},
-            "product": {
-                "type": "object",
-                "required": ["name", "vendor_name"],
-                "properties": {
-                    "name": {"type": "string"},
-                    "vendor_name": {"type": "string"},
-                    "version": {"type": "string"}
-                }
+
+def _write_json(path: pathlib.Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def bundle_schema(output_dir: pathlib.Path = OUTPUT_DIR) -> dict:
+    """Fetch the root schema and its complete local ``$ref`` closure."""
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    output_dir.mkdir(parents=True)
+
+    pending: deque[tuple[str, str]] = deque([(ROOT_URI, ROOT_FETCH_URL)])
+    seen: set[str] = set()
+    resources: list[dict[str, str]] = []
+
+    while pending:
+        uri, fetch_url = pending.popleft()
+        if uri in seen:
+            continue
+        seen.add(uri)
+
+        document = _fetch_json(fetch_url)
+        document.setdefault("$id", uri)
+        target_path = _relative_path(uri)
+        _write_json(output_dir / target_path, document)
+        resources.append(
+            {
+                "uri": uri,
+                "path": target_path.as_posix(),
+                "sha256": hashlib.sha256(
+                    json.dumps(document, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                ).hexdigest(),
+                "source_url": fetch_url,
             }
-        }
-    }
+        )
 
-    network_endpoint_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "objects/network_endpoint.json",
-        "title": "Network Endpoint Object",
-        "type": "object",
-        "properties": {
-            "ip": {"type": "string"},
-            "port": {"type": "integer"},
-            "hostname": {"type": "string"},
-            "domain": {"type": "string"},
-            "mac": {"type": "string"},
-            "interface_name": {"type": "string"}
-        }
-    }
+        for ref in _references(document):
+            target = _canonical_uri(ref, uri)
+            if target is not None and target not in seen:
+                pending.append((target, target))
 
-    connection_info_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "objects/connection_info.json",
-        "title": "Connection Info Object",
-        "type": "object",
-        "properties": {
-            "protocol_name": {"type": "string"},
-            "protocol_num": {"type": "integer"},
-            "direction_id": {"type": "integer"},
-            "boundary_id": {"type": "integer"},
-            "tcp_flags": {"type": "integer"}
-        }
+    manifest = {
+        "ocsf_version": PINNED_OCSF_VERSION,
+        "root_uri": ROOT_URI,
+        "resources": sorted(resources, key=lambda item: item["uri"]),
     }
+    _write_json(output_dir / "manifest.json", manifest)
+    return manifest
 
-    (SCHEMA_DIR / "network_activity.schema.json").write_text(json.dumps(network_activity_schema, indent=2))
-    (OBJECTS_DIR / "metadata.json").write_text(json.dumps(metadata_schema, indent=2))
-    (OBJECTS_DIR / "network_endpoint.json").write_text(json.dumps(network_endpoint_schema, indent=2))
-    (OBJECTS_DIR / "connection_info.json").write_text(json.dumps(connection_info_schema, indent=2))
-    print("Bundled schemas created successfully.")
 
 if __name__ == "__main__":
-    main()
+    manifest = bundle_schema()
+    print(
+        f"Bundled OCSF {manifest['ocsf_version']} with "
+        f"{len(manifest['resources'])} schema resources."
+    )

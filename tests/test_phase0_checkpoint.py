@@ -11,7 +11,7 @@ def test_phase0_valid_event():
         "severity_id": 1,
         "metadata": {
             "uid": "test-uuid-1234",
-            "version": "1.3.0",
+            "version": "1.9.0",
             "logged_time": 1700000000000,
             "product": {
                 "name": "ULPF",
@@ -36,7 +36,7 @@ def test_phase0_invalid_event_type_mismatch():
         "severity_id": 1,
         "metadata": {
             "uid": "test-uuid-1234",
-            "version": "1.3.0",
+            "version": "1.9.0",
             "logged_time": 1700000000000,
             "product": {
                 "name": "ULPF",

@@ -67,6 +67,13 @@ python -m cli.main status
 python -m cli.main reload
 ```
 
+To rebuild an existing normalized store after a schema or mapping upgrade (raw
+files and event IDs are preserved), run:
+
+```bash
+python scripts/rebuild_normalized_store.py --storage-dir ./storage_data
+```
+
 ---
 
 ## 📡 REST API Reference
@@ -74,7 +81,7 @@ python -m cli.main reload
 | Endpoint | Method | Description |
 |---|---|---|
 | `/health` | GET | Returns service status and count of active mapping configs |
-| `/events` | GET | Search normalized OCSF events (`source`, `format`, `src_ip`, `dst_ip`, `dst_port`) |
+| `/events` | GET | Search normalized OCSF events (`source`, `format`, `src_ip`, `dst_ip`, `dst_port`, `since`, `until`, `limit`) |
 | `/events/{id}` | GET | Fetch normalized OCSF event by UUID |
 | `/events/{id}/raw` | GET | Fetch original raw log bytes verbatim by UUID |
 | `/ingest` | POST | Ingest raw log line(s) via HTTP payload |
@@ -95,7 +102,7 @@ format: syslog
 description: "FortiGate Firewall via Syslog"
 
 ocsf:
-  version: "1.3.0"
+  version: "1.9.0"
   class_uid: 4001
   category_uid: 4
 
@@ -173,6 +180,7 @@ grep -rn "requests\|urllib\|http://\|https://" --include="*.py" .
 | `ULPF_SPOOL_DIR` | `./spool` | Directory polled by spool watcher |
 | `ULPF_API_PORT` | `8000` | REST API port |
 | `ULPF_UDP_PORT` | `5514` | UDP Syslog listener port |
+| `ULPF_POLL_INTERVAL` | `1.0` | Spool watcher polling interval in seconds |
 | `ULPF_LOG_LEVEL` | `INFO` | Logging verbosity |
 
 ---

@@ -1,0 +1,1 @@
+{"event_id": "95d6c1e5-52f9-4c06-b180-b987f13536f7", "raw": "<189>date=2026-01-10 time=10:00:00 devname=FG100D devid=FG100D3G15800001 logid=0000000013 type=traffic src=192.168.1.99 spt=50000 dst=10.0.0.1 dpt=80 proto=6", "raw_encoding": "utf-8", "source_id": "fortigate_syslog", "received_at": 1789669096648}

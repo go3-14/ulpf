@@ -38,7 +38,9 @@ def search_events(
     dst_port: int | None = None,
     activity_id: int | None = None,
     severity_id: int | None = None,
-    limit: int = 50
+    since: int | None = None,
+    until: int | None = None,
+    limit: int = Query(50, ge=1, le=1000)
 ):
     results = search_normalized(
         source=source,
@@ -48,6 +50,8 @@ def search_events(
         dst_port=dst_port,
         activity_id=activity_id,
         severity_id=severity_id,
+        since=since,
+        until=until,
         limit=limit
     )
     return results

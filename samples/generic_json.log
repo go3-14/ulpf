@@ -1,32 +1,6 @@
-{
-  "class_uid": 2,
-  "category_uid": 2,
-  "metadata": {
-    "uid": "aa37410f-e5d6-42b3-b96f-9123f77b4fcf",
-    "version": "1.3.0",
-    "original_time": "Jul 25 2025 13:05:30",
-    "event_code": "MalwareDetected",
-    "product": {
-      "name": "Endpoint Protection",
-      "vendor_name": "Symantec",
-      "version": "14.3"
-    },
-    "labels": [
-      "ulpf",
-      "generic_leef",
-      "leef"
-    ]
-  },
-  "time": 1753448730000,
-  "severity_id": 4,
-  "src_endpoint": {
-    "ip": "192.168.1.150"
-  },
-  "unmapped": {
-    "leef_version": "2.0",
-    "file": "/tmp/malware.exe",
-    "threat": "Trojan.Gen",
-    "action": "Quarantine",
-    "severity": "High"
-  }
-}
+{"timestamp":"2026-01-10T10:00:00Z","src_ip":"192.0.2.40","src_port":52000,"dst_ip":"198.51.100.40","dst_port":443,"protocol":"tcp","action":"allow","severity":"3","tags":["edge","web"],"user":{"name":"alice"}}
+{"timestamp":"2026-01-10T10:00:01Z","src_ip":"192.0.2.41","src_port":52001,"dst_ip":"198.51.100.41","dst_port":22,"protocol":"tcp","action":"deny","severity":"4","rule":{"id":"ssh-block"}}
+{"timestamp":"2026-01-10T10:00:02Z","src_ip":"192.0.2.42","src_port":52002,"dst_ip":"198.51.100.42","dst_port":53,"protocol":"udp","action":"allow","severity":3,"items":[{"name":"dns"},{"name":"query"}]}
+{"timestamp":"2026-01-10T10:00:03Z","src_ip":"192.0.2.43","src_port":52003,"dst_ip":"198.51.100.43","dst_port":443,"protocol":"tcp","action":"drop","severity":"5","tags":["blocked"]}
+{"timestamp":"2026-01-10T10:00:04Z","src_ip":"192.0.2.44","src_port":52004,"dst_ip":"198.51.100.44","dst_port":8080,"protocol":"tcp","action":"allow","severity":"2","meta":{"region":"test"}}
+not valid json

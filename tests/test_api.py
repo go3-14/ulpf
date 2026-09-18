@@ -51,6 +51,13 @@ def test_api_search_and_reload():
     assert res_search.status_code == 200
     assert isinstance(res_search.json(), list)
 
+    # Range filters are accepted and limits are bounded at the HTTP layer.
+    ranged = client.get("/events?since=0&until=9999999999999&limit=1")
+    assert ranged.status_code == 200
+    assert len(ranged.json()) <= 1
+    assert client.get("/events?limit=0").status_code == 422
+    assert client.get("/events?limit=1001").status_code == 422
+
     res_reload = client.post("/mappings/reload")
     assert res_reload.status_code == 200
     assert res_reload.json()["mappings_count"] >= 4

@@ -8,6 +8,9 @@ from config import STORAGE_DIR
 
 MAX_FILE_SIZE = 64 * 1024 * 1024  # 64 MB
 
+# Module-level registry so flush_all() can be called from watcher/listener shutdown paths
+_WRITERS: list["PartitionedNDJSONWriter"] = []
+
 class PartitionedNDJSONWriter:
     def __init__(self, base_dir: pathlib.Path | None = None, subfolder: str = "normalized"):
         self._explicit_base_dir = base_dir
@@ -17,6 +20,7 @@ class PartitionedNDJSONWriter:
         self._counts = {}      # path -> unflushed count
         self._dict_lock = threading.Lock()
         atexit.register(self.close_all)
+        _WRITERS.append(self)
 
     def _get_base_dir(self) -> pathlib.Path:
         if self._explicit_base_dir:
@@ -98,3 +102,10 @@ class PartitionedNDJSONWriter:
             self._handles.clear()
             self._locks.clear()
             self._counts.clear()
+
+
+def flush_all() -> None:
+    """Flush and close all active writers. Called from watcher/listener finally blocks
+    to ensure buffered events are committed to disk before process exit."""
+    for writer in list(_WRITERS):
+        writer.close_all()

@@ -14,6 +14,7 @@ ENV ULPF_STORAGE_DIR=/app/storage_data \
     ULPF_SPOOL_DIR=/app/spool \
     ULPF_API_PORT=8000 \
     ULPF_UDP_PORT=5514 \
+    ULPF_POLL_INTERVAL=1.0 \
     ULPF_LOG_LEVEL=INFO
 
 USER ulpf

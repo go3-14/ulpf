@@ -76,7 +76,7 @@ Because source identification and field mapping are defined entirely in YAML, **
 ## 5. Adapted vs. Built Here (Honest Technical Scope)
 
 ### Standard / External Specifications Adapted
-- **OCSF 1.3.0 / 1.8.0 Specification**: Standard cybersecurity taxonomy (Class 4001).
+- **OCSF 1.9.0 Specification**: Standard cybersecurity taxonomy (Class 4001), bundled locally for offline validation.
 - **Format Standards**: RFC3164/RFC5424 Syslog, ArcSight CEF, QRadar LEEF 1.0/2.0 specs.
 
 ### Built Custom in ULPF

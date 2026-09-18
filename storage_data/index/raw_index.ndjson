@@ -5075,3 +5075,4 @@
 {"event_id": "3dc754e6-dfd2-4a77-9902-971d6cbfff64", "file": "C:\\Users\\byjud\\twp2\\storage_data\\raw\\dt=2026-09-16\\source=cisco_asa\\raw-0001.ndjson", "offset": 350522, "length": 268}
 {"event_id": "957eb0d4-0e8c-4be9-a32e-02ac14a249a6", "file": "C:\\Users\\byjud\\twp2\\storage_data\\raw\\dt=2026-09-16\\source=generic_syslog\\raw-0001.ndjson", "offset": 314, "length": 266}
 {"event_id": "839bda5e-5722-4f7e-b273-f429c087f105", "file": "C:\\Users\\byjud\\twp2\\storage_data\\raw\\dt=2026-09-16\\source=generic_syslog\\raw-0001.ndjson", "offset": 581, "length": 284}
+{"event_id": "95d6c1e5-52f9-4c06-b180-b987f13536f7", "file": "C:\\Users\\Gopi\\Dev shit\\Personal\\sih\\ulpf\\storage_data\\raw\\dt=2026-09-17\\source=fortigate_syslog\\raw-0001.ndjson", "offset": 0, "length": 309}

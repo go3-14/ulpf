@@ -22,10 +22,10 @@ def test_plugin_onboarding(tmp_path, monkeypatch):
 
     # 2. Add brand-new Fortigate YAML dynamically with ZERO python code changes
     fortigate_yaml = {
-        "source": "fortigate_syslog",
+        "source": "fortigate_syslog_dynamic",
         "format": "syslog",
         "description": "Fortigate Firewall via syslog",
-        "ocsf": {"version": "1.3.0", "class_uid": 4001, "category_uid": 4},
+        "ocsf": {"version": "1.9.0", "class_uid": 4001, "category_uid": 4},
         "priority": 100,
         "match": {
             "all": [
@@ -34,7 +34,8 @@ def test_plugin_onboarding(tmp_path, monkeypatch):
         },
         "constants": {
             "metadata.product.vendor_name": "Fortinet",
-            "metadata.product.name": "FortiGate"
+            "metadata.product.name": "FortiGate",
+            "connection_info.direction_id": 0,
         },
         "field_map": {
             "src": {"to": "src_endpoint.ip", "type": "ip"},
@@ -58,7 +59,7 @@ def test_plugin_onboarding(tmp_path, monkeypatch):
     assert forti_id is not None
 
     # Verify routing to fortigate_syslog
-    forti_events = search_normalized(source="fortigate_syslog")
+    forti_events = search_normalized(source="fortigate_syslog_dynamic")
     assert len(forti_events) == 1
     assert forti_events[0]["metadata"]["product"]["vendor_name"] == "Fortinet"
 

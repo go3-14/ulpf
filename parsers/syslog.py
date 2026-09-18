@@ -44,6 +44,11 @@ def parse_syslog(raw_log: str) -> dict | None:
         return None
 
     gd = m.groupdict()
+    # A syslog record must carry at least its PRI or timestamp envelope. This
+    # prevents arbitrary prose such as a malformed sample line from being
+    # misclassified as a generic syslog event.
+    if not gd.get("pri") and not gd.get("timestamp"):
+        return None
     res = {}
 
     if gd.get("pri"):

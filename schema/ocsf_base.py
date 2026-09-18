@@ -9,7 +9,7 @@ def build_base(config: dict, event_id: str) -> dict:
         "category_uid": ocsf.get("category_uid", 4),
         "metadata": {
             "uid": event_id,
-            "version": ocsf.get("version", "1.3.0"),
+            "version": ocsf.get("version", "1.9.0"),
             "logged_time": now_ms,
             "product": {"name": "ULPF", "vendor_name": "ULPF"},
             "labels": ["ulpf"],
