@@ -1,0 +1,10 @@
+source: generic_csv
+format: csv
+description: Generic CSV events
+ocsf: {version: "1.9.0", class_uid: 3002, category_uid: 3}
+priority: 0
+field_map:
+  timestamp: {to: time, type: epoch_ms}
+  user: {to: actor.user.name, type: str}
+  action: {to: activity_name, type: str}
+defaults: {activity_id: 1, severity_id: 1}

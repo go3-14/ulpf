@@ -90,9 +90,15 @@ def watch(spool_dir: str | pathlib.Path | None = None,
                                 except Exception as ex:
                                     logger.error(f"Error processing line from {fpath.name}: {ex}", exc_info=True)
 
-                        # Persist state
-                        with open(state_file, "w", encoding="utf-8") as sf:
+                        # Persist after the bytes have been durably handed to
+                        # the processor. Atomic replace prevents a torn state
+                        # file from replaying an arbitrary offset after crash.
+                        tmp_state = state_file.with_suffix(".tmp")
+                        with open(tmp_state, "w", encoding="utf-8") as sf:
                             json.dump(state, sf)
+                            sf.flush()
+                            os.fsync(sf.fileno())
+                        os.replace(tmp_state, state_file)
 
                         # Move file if EOF reached and buffer clean
                         if fpath.stat().st_size == state[fkey] and not partial_buffers.get(fkey):

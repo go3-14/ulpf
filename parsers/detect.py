@@ -8,11 +8,15 @@ def detect_format(raw: str) -> str | None:
         return None
     if s.startswith("{") or s.startswith("["):
         return "json"
+    if s.startswith("<?xml") or (s.startswith("<") and s.endswith(">")):
+        return "xml"
     if "CEF:" in s[:200]:
         return "cef"
     if "LEEF:" in s[:200]:
         return "leef"
     if SYSLOG_HEADER_RE.match(s) or "%ASA-" in s:
         return "syslog"
+    if "," in s or "\t" in s:
+        return "csv"
     return None
 

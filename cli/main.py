@@ -4,9 +4,9 @@ import logging
 import sys
 import threading
 import uvicorn
-from config import API_HOST, API_PORT, LOG_LEVEL
+from config import API_HOST, API_PORT, LOG_LEVEL, TCP_PORT, TLS_CERT, TLS_KEY
 from ingest import metrics
-from ingest.pipeline import process, reload_mappings
+from ingest.pipeline import process, reload_mappings, replay_failed
 from ingest.syslog_listener import listen
 from ingest.watcher import watch
 from storage.normalized_store import get_normalized, search_normalized
@@ -67,7 +67,7 @@ def cmd_serve(args):
 
     listener_thread = threading.Thread(
         target=listen,
-        kwargs={"stop_event": stop_event},
+        kwargs={"stop_event": stop_event, "tcp_port": TCP_PORT, "tls_cert": TLS_CERT, "tls_key": TLS_KEY},
         daemon=True
     )
     listener_thread.start()
@@ -118,6 +118,41 @@ def cmd_reload(args):
     count = reload_mappings()
     print(f"Reloaded mappings. Total active: {count}")
 
+def cmd_replay(args):
+    print(f"Recovered: {replay_failed(limit=args.limit)}")
+
+def cmd_suggest(args):
+    from pathlib import Path
+    from ingest.pipeline import PARSERS
+    from parsers.detect import detect_format
+    t0 = time.perf_counter()
+    raw = Path(args.sample).read_text(encoding="utf-8").splitlines()[0]
+    fmt = detect_format(raw)
+    parsed = PARSERS[fmt](raw) if fmt else {}
+    mapping = {"source": args.source, "format": fmt or "json", "field_map": {k: {"to": k, "type": "str"} for k in parsed}}
+    import yaml
+    print(yaml.safe_dump(mapping, sort_keys=False))
+
+def cmd_test_mapping(args):
+    import yaml, time
+    from pathlib import Path
+    from ingest.pipeline import PARSERS
+    from parsers.detect import detect_format
+    from schema.normalize import normalize
+    from schema.validate import validate_event
+    raw = Path(args.sample).read_text(encoding="utf-8").splitlines()[0]
+    fmt = detect_format(raw)
+    with open(args.mapping, encoding="utf-8") as fh: mapping = yaml.safe_load(fh)
+    parsed = PARSERS[fmt](raw)
+    event = normalize(parsed, mapping, "mapping-test", mapping["source"], fmt)
+    validate_event(event)
+    print(yaml.safe_dump(event, sort_keys=False))
+    print(f"validated in {time.perf_counter() - t0:.6f}s")
+
+def cmd_demo(args):
+    from tui.app import DemoApp
+    DemoApp().run()
+
 def main():
     setup_logging()
     parser = argparse.ArgumentParser(prog="ulpf", description="Universal Log Pre-processing Framework")
@@ -154,6 +189,17 @@ def main():
     # reload
     p_reload = subparsers.add_parser("reload", help="Reload YAML mappings")
     p_reload.set_defaults(func=cmd_reload)
+    p_replay = subparsers.add_parser("replay-failed", help="Retry failed-event store records")
+    p_replay.add_argument("--limit", type=int)
+    p_replay.set_defaults(func=cmd_replay)
+    p_suggest = subparsers.add_parser("suggest", help="Draft YAML mapping from a sample")
+    p_suggest.add_argument("sample"); p_suggest.add_argument("--source", default="new_source")
+    p_suggest.set_defaults(func=cmd_suggest)
+    p_test = subparsers.add_parser("test", help="Test a mapping against a sample")
+    p_test.add_argument("mapping"); p_test.add_argument("sample")
+    p_test.set_defaults(func=cmd_test_mapping)
+    p_demo = subparsers.add_parser("demo", help="Launch the live Textual demonstration harness")
+    p_demo.set_defaults(func=cmd_demo)
 
     args = parser.parse_args()
     args.func(args)

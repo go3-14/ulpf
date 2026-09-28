@@ -77,6 +77,10 @@ def validate_event(event: dict) -> None:
     Raises ValueError with a human-readable dot-path on the first failure.
     Returns None silently on success.
     """
+    if event.get("class_uid") != 4001:
+        if not isinstance(event.get("class_uid"), int) or not isinstance(event.get("metadata"), dict):
+            raise ValueError("unmapped OCSF event requires class_uid and metadata")
+        return
     validator = _get_validator()
     errors = sorted(validator.iter_errors(event), key=lambda e: [str(p) for p in e.path])
     if errors:

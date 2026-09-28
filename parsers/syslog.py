@@ -1,5 +1,5 @@
 import re
-from parsers.util import kv_extract
+from parsers.util import kv_extract, extract_generic_connection
 
 SYSLOG_PATTERN = re.compile(
     r'^(?:<(?P<pri>\d{1,3})>)?'
@@ -7,17 +7,6 @@ SYSLOG_PATTERN = re.compile(
     r'(?P<hostname>[\w.\-]+)?\s*'
     r'(?P<tag>%?[\w.\-]+:?)?\s*'
     r'(?P<message>.*)$'
-)
-
-# ASA idiom patterns e.g. "outside:192.168.1.50/49152" or "from inside:10.0.0.5/80 to outside:192.168.1.50/80"
-ASA_CONN_RE = re.compile(
-    r'(?:for|from)\s+(?P<src_if>\w+):(?P<src_ip>[\d.]+)/(?P<src_port>\d+)(?:\s*\([\d./]+\))?\s+'
-    r'to\s+(?P<dst_if>\w+):(?P<dst_ip>[\d.]+)/(?P<dst_port>\d+)'
-)
-
-ASA_DENY_RE = re.compile(
-    r'Deny\s+(?P<proto>\w+)\s+src\s+(?P<src_if>\w+):(?P<src_ip>[\d.]+)/(?P<src_port>\d+)\s+'
-    r'dst\s+(?P<dst_if>\w+):(?P<dst_ip>[\d.]+)/(?P<dst_port>\d+)'
 )
 
 def parse_syslog(raw_log: str) -> dict | None:
@@ -71,25 +60,8 @@ def parse_syslog(raw_log: str) -> dict | None:
 
     # KV pairs from message
     res.update(kv_extract(msg))
-
-    # ASA message pattern extraction
-    conn_m = ASA_CONN_RE.search(msg)
-    if conn_m:
-        res["src"] = conn_m.group("src_ip")
-        res["spt"] = int(conn_m.group("src_port"))
-        res["dst"] = conn_m.group("dst_ip")
-        res["dpt"] = int(conn_m.group("dst_port"))
-        res["ifname"] = conn_m.group("src_if")
-    else:
-        deny_m = ASA_DENY_RE.search(msg)
-        if deny_m:
-            res["proto"] = deny_m.group("proto")
-            res["src"] = deny_m.group("src_ip")
-            res["spt"] = int(deny_m.group("src_port"))
-            res["dst"] = deny_m.group("dst_ip")
-            res["dpt"] = int(deny_m.group("dst_port"))
-            res["ifname"] = deny_m.group("src_if")
-            res["action"] = "Deny"
+    # Generic network-event envelope; vendor-specific semantics stay in YAML.
+    res.update(extract_generic_connection(msg))
 
     # Action detection heuristic if action not explicitly parsed
     if "action" not in res:

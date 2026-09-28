@@ -22,6 +22,7 @@ def deep_merge(base: dict, overlay: dict) -> dict:
 def normalize(parsed: dict, config: dict, event_id: str,
               source_id: str, fmt: str) -> dict:
     out = build_base(config, event_id)
+    out["mapping_version"] = config.get("mapping_version", "1")
     consumed = set()
 
     # 1. constants

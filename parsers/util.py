@@ -58,3 +58,24 @@ def flatten(d: dict, parent_key: str = "", sep: str = ".") -> dict:
         else:
             items.append((new_key, v))
     return dict(items)
+import re
+
+_CONNECTION_RE = re.compile(
+    r'(?:for|from)\s+(?P<ifname>\w+):(?P<src>[\d.]+)/(?P<spt>\d+)\s+'
+    r'to\s+(?P<dst_if>\w+):(?P<dst>[\d.]+)/(?P<dpt>\d+)'
+)
+_DENY_CONNECTION_RE = re.compile(
+    r'\b(?P<action>Deny|Denied)\s+(?P<proto>\w+)\s+src\s+'
+    r'(?P<ifname>\w+):(?P<src>[\d.]+)/(?P<spt>\d+)\s+dst\s+'
+    r'(?P<dst_if>\w+):(?P<dst>[\d.]+)/(?P<dpt>\d+)'
+)
+
+def extract_generic_connection(message: str) -> dict:
+    """Extract the common interface:IP/port -> interface:IP/port idiom."""
+    match = _CONNECTION_RE.search(message) or _DENY_CONNECTION_RE.search(message)
+    if not match:
+        return {}
+    result = match.groupdict()
+    result["spt"] = int(result["spt"])
+    result["dpt"] = int(result["dpt"])
+    return result

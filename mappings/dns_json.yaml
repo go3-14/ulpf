@@ -1,0 +1,13 @@
+source: dns_json
+format: json
+description: DNS activity demonstration source
+ocsf: {version: "1.9.0", class_uid: 4003, category_uid: 4}
+priority: 50
+match:
+  all:
+    - field: event_type
+      equals: dns
+field_map:
+  query: {to: query.hostname, type: str}
+  response_code: {to: response_code, type: int}
+defaults: {activity_id: 1, severity_id: 1}

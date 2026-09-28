@@ -13,6 +13,9 @@ API_PORT = int(os.environ.get("ULPF_API_PORT", "8000"))
 
 UDP_HOST = os.environ.get("ULPF_UDP_HOST", "0.0.0.0")
 UDP_PORT = int(os.environ.get("ULPF_UDP_PORT", "5514"))
+TCP_PORT = int(os.environ.get("ULPF_TCP_PORT", "0")) or None
+TLS_CERT = os.environ.get("ULPF_TLS_CERT")
+TLS_KEY = os.environ.get("ULPF_TLS_KEY")
 
 LOG_LEVEL = os.environ.get("ULPF_LOG_LEVEL", "INFO")
 POLL_INTERVAL = float(os.environ.get("ULPF_POLL_INTERVAL", "1.0"))

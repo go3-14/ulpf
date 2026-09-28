@@ -3,7 +3,7 @@ MAPPING_SCHEMA = {
     "required": ["source", "format", "field_map"],
     "properties": {
         "source": {"type": "string"},
-        "format": {"type": "string", "enum": ["syslog", "cef", "leef", "json"]},
+        "format": {"type": "string", "enum": ["syslog", "cef", "leef", "json", "xml", "csv"]},
         "description": {"type": "string"},
         "ocsf": {
             "type": "object",
@@ -55,7 +55,8 @@ MAPPING_SCHEMA = {
                 }
             }
         },
-        "defaults": {"type": "object"}
+        "defaults": {"type": "object"},
+        "extract": {"type": "array", "items": {"type": "object"}}
     },
     "additionalProperties": True
 }

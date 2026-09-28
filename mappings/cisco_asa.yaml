@@ -8,10 +8,15 @@ ocsf:
   category_uid: 4
 
 priority: 100
+mapping_version: "1.0.0"
 match:
   all:
     - field: tag
       regex: "^%ASA-"
+
+extract:
+  - regex: "(?:for|from)\\s+(?P<src_if>\\w+):(?P<src>[\\d.]+)/(?P<spt>\\d+)(?:\\s*\\([\\d./]+\\))?\\s+to\\s+(?P<dst_if>\\w+):(?P<dst>[\\d.]+)/(?P<dpt>\\d+)"
+  - regex: "Deny\\s+(?P<proto>\\w+)\\s+src\\s+(?P<src_if>\\w+):(?P<src>[\\d.]+)/(?P<spt>\\d+)\\s+dst\\s+(?P<dst_if>\\w+):(?P<dst>[\\d.]+)/(?P<dpt>\\d+)"
 
 constants:
   metadata.product.vendor_name: "Cisco"
@@ -27,13 +32,13 @@ time:
   timezone: "UTC"
 
 field_map:
-  src:     { to: src_endpoint.ip,            type: ip }
-  spt:     { to: src_endpoint.port,          type: port }
-  dst:     { to: dst_endpoint.ip,            type: ip }
-  dpt:     { to: dst_endpoint.port,          type: port }
-  proto:   { to: connection_info.protocol_name, type: str }
-  ifname:  { to: src_endpoint.interface_name,  type: str }
-  tag:     { to: metadata.event_code,        type: str }
+  src: { to: src_endpoint.ip, type: ip }
+  spt: { to: src_endpoint.port, type: port }
+  dst: { to: dst_endpoint.ip, type: ip }
+  dpt: { to: dst_endpoint.port, type: port }
+  proto: { to: connection_info.protocol_name, type: str }
+  ifname: { to: src_endpoint.interface_name, type: str }
+  tag: { to: metadata.event_code, type: str }
 
   action:
     to: activity_id
