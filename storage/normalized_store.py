@@ -2,6 +2,7 @@ import glob
 import json
 import pathlib
 import config
+import ipaddress
 from collections import OrderedDict
 from storage.writer import PartitionedNDJSONWriter
 
@@ -55,6 +56,11 @@ def search_normalized(
     src_ip: str | None = None,
     dst_ip: str | None = None,
     dst_port: int | None = None,
+    src_port: int | None = None,
+    user: str | None = None,
+    class_uid: int | None = None,
+    q: str | None = None,
+    cursor: int = 0,
     activity_id: int | None = None,
     severity_id: int | None = None,
     since: int | None = None,
@@ -66,6 +72,7 @@ def search_normalized(
         return []
 
     results = []
+    skipped = 0
     files = sorted(glob.glob(str(norm_dir / "**" / "*.ndjson"), recursive=True), reverse=True)
 
     for fpath in files:
@@ -92,6 +99,14 @@ def search_normalized(
                         continue
                     if dst_port is not None and ev.get("dst_endpoint", {}).get("port") != dst_port:
                         continue
+                    if src_port is not None and ev.get("src_endpoint", {}).get("port") != src_port:
+                        continue
+                    if user and user not in str(ev.get("user_name", ev.get("user", ""))):
+                        continue
+                    if class_uid is not None and ev.get("class_uid") != class_uid:
+                        continue
+                    if q and q not in str(ev.get("message", "")):
+                        continue
                     if activity_id is not None and ev.get("activity_id") != activity_id:
                         continue
                     if severity_id is not None and ev.get("severity_id") != severity_id:
@@ -101,6 +116,9 @@ def search_normalized(
                     if until is not None and ev.get("time", 0) > until:
                         continue
 
+                    if skipped < cursor:
+                        skipped += 1
+                        continue
                     results.append(ev)
                     if len(results) >= limit:
                         return results

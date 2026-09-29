@@ -115,6 +115,8 @@ def cmd_search(args):
         src_ip=args.src_ip,
         dst_ip=args.dst_ip,
         dst_port=args.dst_port,
+        src_port=args.src_port, user=args.user, class_uid=args.class_uid,
+        q=args.q, cursor=args.cursor,
         limit=args.limit
     )
     print(json.dumps(results, indent=2))
@@ -193,6 +195,11 @@ def main():
     p_search.add_argument("--src-ip", help="Filter by source IP")
     p_search.add_argument("--dst-ip", help="Filter by destination IP")
     p_search.add_argument("--dst-port", type=int, help="Filter by destination port")
+    p_search.add_argument("--src-port", type=int)
+    p_search.add_argument("--user")
+    p_search.add_argument("--class-uid", type=int)
+    p_search.add_argument("--q")
+    p_search.add_argument("--cursor", type=int, default=0)
     p_search.add_argument("--limit", type=int, default=50, help="Max results to return")
     p_search.set_defaults(func=cmd_search)
 
