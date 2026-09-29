@@ -4,3 +4,7 @@ __pycache__/
 .test_basetemp/
 pytest_tmp/
 .venv/
+storage_data/
+spool/*
+!spool/.gitkeep
+dist/
