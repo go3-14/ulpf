@@ -1,0 +1,40 @@
+source: cloud_1790712160
+format: json
+mapping_version: 1.0.0
+priority: 100
+ocsf:
+  version: 1.9.0
+  class_uid: 4001
+  category_uid: 4
+defaults:
+  activity_id: 1
+  severity_id: 1
+time:
+  field: timestamp
+  formats:
+  - '%Y-%m-%dT%H:%M:%SZ'
+  - '%Y-%m-%d %H:%M:%S'
+field_map:
+  timestamp:
+    to: unmapped.timestamp
+    type: str
+  src_ip:
+    to: src_endpoint.ip
+    type: ip
+  dst_ip:
+    to: dst_endpoint.ip
+    type: ip
+  action:
+    to: activity_id
+    type: enum
+    values:
+      allow: 1
+      deny: 2
+      login_failed: 2
+    default: 99
+  protocol:
+    to: connection_info.protocol_name
+    type: str
+  bytes_out:
+    to: unmapped.bytes_out
+    type: str

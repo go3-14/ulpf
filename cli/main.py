@@ -2,6 +2,9 @@ import argparse
 import json
 import logging
 import sys
+from pathlib import Path
+_R = str(Path(__file__).resolve().parent.parent)
+if _R not in sys.path: sys.path.insert(0, _R)
 import threading
 import uvicorn
 from config import API_HOST, API_PORT, LOG_LEVEL, TCP_PORT, TLS_CERT, TLS_KEY
