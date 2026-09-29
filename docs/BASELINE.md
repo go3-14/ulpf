@@ -48,3 +48,44 @@ StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprec
 - The checked-in Dockerfile is single-stage and has no `test` target; T0.3 adds the required test stage.
 - The current local tree contains tracked runtime data and bytecode; T0.2 handles the hygiene cleanup.
 - `tui/app.py` is a Textual/httpx client of the FastAPI service, but it also writes directly to `spool/` and launches the benchmark subprocess. Addendum A5 defers its API-only correction to the later TUI scope.
+
+## T0.3 Docker evidence
+
+Build command:
+
+```text
+docker build --target test -t ulpf-test .
+...
+#12 naming to docker.io/library/ulpf-test:latest
+#12 DONE
+```
+
+Container test-stage command and raw result:
+
+```text
+docker run --rm ulpf-test python -m pytest -q
+.............................                                            [100%]
+29 passed, 1 warning in 4.66s
+```
+
+Isolated processing command:
+
+```text
+docker run --rm --network none -v <repo>\samples:/samples:ro -v <temp>:/data \
+  -e ULPF_STORAGE_DIR=/data/storage -e ULPF_SPOOL_DIR=/data/spool \
+  ulpf-test python -m cli.main process /samples/cisco_asa_syslog.log
+```
+
+Result:
+
+```text
+PROCESSED: 26a1a644-46de-4822-b1d8-50d4b576eafc
+PROCESSED: ab312d12-cd55-42b9-8b04-8934860d1d08
+PROCESSED: eaa5d6b8-4645-41d8-9176-60c1d5e89e0a
+PROCESSED: 0eed8efa-2dcb-4837-8551-b3bff00f3502
+PROCESSED: cd70370a-aa1a-465c-8d76-9bca7b1f6388
+PROCESSED: 6c1c2784-8c3c-4759-84ac-2bbe7a57c6be
+FAILED: malformed ASA line without a syslog envelope
+
+Summary: 6 processed, 1 failed.
+```
