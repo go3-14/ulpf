@@ -14,6 +14,7 @@ import yaml
 from storage.normalized_store import get_normalized, search_normalized
 from storage.raw_store import read_raw
 from storage.index import get_record
+from fastapi.responses import HTMLResponse
 from ingest.coverage import report as coverage_report
 
 app = FastAPI(title="ULPF - Universal Log Pre-processing Framework API", version="3.0.0")
@@ -30,6 +31,10 @@ class IngestRequest(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok", "mappings_loaded": len(MAPPINGS)}
+
+@app.get("/ui", response_class=HTMLResponse)
+def ui():
+    return pathlib.Path(__file__).parent.parent.joinpath("ui/index.html").read_text(encoding="utf-8")
 
 @app.get("/events/{event_id}")
 def get_event(event_id: str):
