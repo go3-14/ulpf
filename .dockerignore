@@ -1,5 +1,8 @@
 storage_data/
 spool/
+pytest_tmp/
+dist/
+docs/baseline/
 .git
 .gitignore
 __pycache__
