@@ -206,3 +206,6 @@ Run throughput benchmark:
 python scripts/benchmark.py
 ```
 *Result*: ~250+ events/sec single-process Python execution with full OCSF validation and disk persistence.
+# Operational commands
+
+Run `python -m cli.main serve` for the API service, `python -m cli.main process FILE` for offline ingestion, `python -m cli.main search --limit 50` for event search, `python -m cli.main correlate`, `python -m cli.main onboard --sample FILE --out mappings/new.yaml`, and `python -m cli.main lookup EVENT_ID --provenance` for evidence retrieval. The dashboard is available at `/ui`.

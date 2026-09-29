@@ -92,3 +92,6 @@ Because source identification and field mapping are defined entirely in YAML, **
 1. **Ingestion Layer**: Deploy Kafka or RabbitMQ as the ingress queue in front of ULPF.
 2. **Stateless Processing**: Scale ULPF containers horizontally behind consumer groups. Because normalization is stateless per line, throughput scales linearly.
 3. **Storage Sink**: Direct the Partitioned NDJSON Landing Zone to S3 / Data Lake or stream directly into Elasticsearch / OpenSearch / SIEM platforms.
+# Runtime model
+
+Parsers recognize formats, YAML mappings identify sources and map fields, and the pipeline validates, stores raw/normalized records, and indexes provenance in SQLite. Deterministic IDs support file replay deduplication; network origins include receipt time and sequence. The TUI and offline dashboard use the HTTP API.
