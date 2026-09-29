@@ -134,6 +134,22 @@ def cmd_test_mappings(args):
     from scripts.test_mappings import run
     print(f"passed {len(run(mapping_id=args.mapping))} mapping golden tests")
 
+def cmd_onboard(args):
+    from cli.onboarding import write_draft
+    write_draft(args.sample, args.source_id, args.out)
+    print(f"wrote draft mapping to {args.out}")
+
+def cmd_validate_mapping(args):
+    from mappings.loader import load_mappings
+    from cli.onboarding import build_draft
+    import tempfile, pathlib
+    with tempfile.TemporaryDirectory() as directory:
+        path = pathlib.Path(directory) / "candidate.yaml"
+        import yaml
+        path.write_text(yaml.safe_dump(yaml.safe_load(open(args.mapping, encoding="utf-8"))), encoding="utf-8")
+        loaded = load_mappings(directory)
+        print(json.dumps({"valid": bool(loaded), "source": next(iter(loaded), None)}))
+
 def cmd_replay(args):
     print(f"Recovered: {replay_failed(limit=args.limit)}")
 
@@ -217,6 +233,11 @@ def main():
     p_tm = subparsers.add_parser("test-mappings", help="Run YAML mapping golden tests")
     p_tm.add_argument("--mapping")
     p_tm.set_defaults(func=cmd_test_mappings)
+    p_on = subparsers.add_parser("onboard", help="Draft a mapping from a sample")
+    p_on.add_argument("--sample", required=True); p_on.add_argument("--source-id", default="new_source")
+    p_on.add_argument("--out", required=True); p_on.set_defaults(func=cmd_onboard)
+    p_vm = subparsers.add_parser("validate-mapping", help="Validate a mapping file")
+    p_vm.add_argument("mapping"); p_vm.add_argument("--sample", required=False); p_vm.set_defaults(func=cmd_validate_mapping)
     p_replay = subparsers.add_parser("replay-failed", help="Retry failed-event store records")
     p_replay.add_argument("--limit", type=int)
     p_replay.set_defaults(func=cmd_replay)
