@@ -10,6 +10,7 @@ SPOOL_DIR = pathlib.Path(os.environ.get("ULPF_SPOOL_DIR", BASE_DIR / "spool")).r
 # Network / Server Configuration
 API_HOST = os.environ.get("ULPF_API_HOST", "0.0.0.0")
 API_PORT = int(os.environ.get("ULPF_API_PORT", "8000"))
+ULPF_API_KEY = os.environ.get("ULPF_API_KEY")
 
 UDP_HOST = os.environ.get("ULPF_UDP_HOST", "0.0.0.0")
 UDP_PORT = int(os.environ.get("ULPF_UDP_PORT", "5514"))

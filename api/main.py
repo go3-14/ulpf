@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import FastAPI, HTTPException, Query, Response, Header
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 from ingest import metrics
@@ -16,6 +16,12 @@ from storage.raw_store import read_raw
 from storage.index import get_record
 
 app = FastAPI(title="ULPF - Universal Log Pre-processing Framework API", version="3.0.0")
+
+def _require_api_key(api_key: str | None) -> None:
+    import config
+    expected = getattr(config, "ULPF_API_KEY", None)
+    if expected and api_key != expected:
+        raise HTTPException(status_code=401, detail="API key required")
 
 class IngestRequest(BaseModel):
     logs: list[str] | str
@@ -81,7 +87,8 @@ def get_metrics_endpoint():
     return metrics.get_metrics()
 
 @app.post("/ingest")
-def ingest_logs(payload: IngestRequest):
+def ingest_logs(payload: IngestRequest, x_api_key: str | None = Header(default=None)):
+    _require_api_key(x_api_key)
     lines = [payload.logs] if isinstance(payload.logs, str) else payload.logs
     event_ids = []
     for line in lines:
@@ -92,7 +99,8 @@ def ingest_logs(payload: IngestRequest):
     return {"processed": len(event_ids), "event_ids": event_ids}
 
 @app.post("/mappings/reload")
-def reload_mappings_endpoint():
+def reload_mappings_endpoint(x_api_key: str | None = Header(default=None)):
+    _require_api_key(x_api_key)
     count = reload_mappings()
     return {"status": "reloaded", "mappings_count": count}
 
@@ -102,7 +110,8 @@ def failed_events(limit: int = Query(100, ge=1, le=1000)):
     return list_failed(limit=limit)
 
 @app.post("/replay")
-def replay_events(limit: int | None = None):
+def replay_events(limit: int | None = None, x_api_key: str | None = Header(default=None)):
+    _require_api_key(x_api_key)
     return {"recovered": replay_failed(limit=limit)}
 
 @app.post("/onboarding/suggest")
