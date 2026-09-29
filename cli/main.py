@@ -121,6 +121,11 @@ def cmd_search(args):
     )
     print(json.dumps(results, indent=2))
 
+def cmd_correlate(args):
+    from ingest.correlation import correlate
+    events = search_normalized(limit=1000)
+    print(json.dumps(correlate(events, key=args.key, window=args.window, min_sources=args.min_sources), indent=2))
+
 def cmd_reload(args):
     count = reload_mappings()
     print(f"Reloaded mappings. Total active: {count}")
@@ -202,6 +207,9 @@ def main():
     p_search.add_argument("--cursor", type=int, default=0)
     p_search.add_argument("--limit", type=int, default=50, help="Max results to return")
     p_search.set_defaults(func=cmd_search)
+    p_corr = subparsers.add_parser("correlate", help="Correlate events across sources")
+    p_corr.add_argument("--key", default="src_ip"); p_corr.add_argument("--window", type=int, default=300)
+    p_corr.add_argument("--min-sources", type=int, default=2); p_corr.set_defaults(func=cmd_correlate)
 
     # reload
     p_reload = subparsers.add_parser("reload", help="Reload YAML mappings")
