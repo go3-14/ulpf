@@ -19,6 +19,7 @@ from storage.index import add_index
 from storage.index import get_index
 from ingest import metrics
 from ingest.identity import event_id_for
+from mappings.extract import apply_extracts
 
 PARSERS = {
     "syslog": parse_syslog,
@@ -72,11 +73,7 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
     else:
         mapping = MAPPINGS[source_id]
 
-    for rule in mapping.get("extract", []):
-        import re
-        match = re.search(rule.get("regex", ""), str(parsed.get("message", raw_text)))
-        if match:
-            parsed.update({k: v for k, v in match.groupdict().items() if v is not None})
+    apply_extracts(parsed, mapping.get("extract", []))
     event_id = event_id_for(raw_bytes, ctx)
     if get_index(event_id) is not None:
         metrics.record_duplicate()
