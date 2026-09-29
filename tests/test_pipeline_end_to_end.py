@@ -56,4 +56,5 @@ def test_pipeline_end_to_end_syslog(tmp_path, monkeypatch):
         assert "unmapped" in event or "_ulpf_transform_errors" in event.get("unmapped", {})
 
     assert processed_count >= 4
-    assert failed_count >= 1
+    # Phase 4 fallback mode stores previously-unmapped lines as Base Events.
+    assert failed_count == 0
