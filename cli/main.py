@@ -123,6 +123,10 @@ def cmd_reload(args):
     count = reload_mappings()
     print(f"Reloaded mappings. Total active: {count}")
 
+def cmd_test_mappings(args):
+    from scripts.test_mappings import run
+    print(f"passed {len(run(mapping_id=args.mapping))} mapping golden tests")
+
 def cmd_replay(args):
     print(f"Recovered: {replay_failed(limit=args.limit)}")
 
@@ -195,6 +199,9 @@ def main():
     # reload
     p_reload = subparsers.add_parser("reload", help="Reload YAML mappings")
     p_reload.set_defaults(func=cmd_reload)
+    p_tm = subparsers.add_parser("test-mappings", help="Run YAML mapping golden tests")
+    p_tm.add_argument("--mapping")
+    p_tm.set_defaults(func=cmd_test_mappings)
     p_replay = subparsers.add_parser("replay-failed", help="Retry failed-event store records")
     p_replay.add_argument("--limit", type=int)
     p_replay.set_defaults(func=cmd_replay)
