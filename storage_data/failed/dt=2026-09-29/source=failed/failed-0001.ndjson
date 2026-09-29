@@ -1,0 +1,7 @@
+{"raw": "malformed ASA line without a syslog envelope", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790660338229}
+{"raw": "not valid json", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790660338260}
+{"raw": "not a LEEF record", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790660338288}
+{"raw": "not a CEF record", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790660338313}
+{"raw": "malformed ASA line without a syslog envelope", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790660572317}
+{"raw": "some completely unrecognized line XYZ 123 abc def", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1790680313402}
+{"raw": "{\"event\": \"test\", \"src\": \"1.2.3.4\"}", "raw_encoding": "utf-8", "reason": "OCSF validation failed: OCSF validation failed at <root>: {'class_uid': 4001, 'category_uid': 4, 'metadata': {'uid': 'aeea78e1-096a-4737-b909-8c82ab2ed7ee', 'version': '1.9.0', 'logged_time': 1790680313406, 'product': {'name': 'JSON Log Source', 'vendor_name': 'Generic'}, 'labels': ['ulpf', 'generic_json', 'json']}, 'mapping_version': '1', 'connection_info': {'direction_id': 0}, 'time': 1790680313406, 'activity_id': 6, 'severity_id': 1, 'type_uid': 400106, 'unmapped': {'event': 'test', 'src': '1.2.3.4'}} is not valid under any of the given schemas", "timestamp": 1790680313412}

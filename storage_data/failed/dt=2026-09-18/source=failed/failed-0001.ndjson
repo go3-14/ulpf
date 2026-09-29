@@ -1,0 +1,3 @@
+{"raw": "malformed ASA line without a syslog envelope", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1789709251380}
+{"raw": "not a CEF record", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1789709283044}
+{"raw": "not a CEF record", "raw_encoding": "utf-8", "reason": "unrecognized format", "timestamp": 1789721910297}
