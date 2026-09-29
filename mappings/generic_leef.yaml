@@ -36,13 +36,13 @@ field_map:
   action:
     to: activity_id
     type: enum
-    values: { Built: 1, allow: 1, Accept: 1, accept: 1, Deny: 5, deny: 5, reset: 3 }
+    values: { Built: 1, allow: 1, accept: 1, deny: 5, reset: 3 }
     default: 99
 
   act:
     to: activity_id
     type: enum
-    values: { Built: 1, allow: 1, Accept: 1, accept: 1, Deny: 5, deny: 5, reset: 3 }
+    values: { Built: 1, allow: 1, accept: 1, deny: 5, reset: 3 }
     default: 99
 
 defaults:

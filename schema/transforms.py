@@ -34,15 +34,29 @@ def to_port(v, spec):
     return p
 
 def to_enum(v, spec):
-    values = spec.get("values") or {}
-    key = str(v).strip()
-    if key in values:
-        return values[key]
-    if key.lower() in values:
-        return values[key.lower()]
+    folded = spec.get("_folded_values")
+    if folded is None:
+        folded = compile_enum_values(spec.get("values") or {})
+    key = str(v).strip().casefold()
+    if key in folded:
+        return folded[key]
     if "default" in spec:
         return spec["default"]
     raise TransformError(f"unmapped enum value {v!r} and no default")
+
+
+def compile_enum_values(values: dict) -> dict:
+    folded = {}
+    originals = {}
+    for original, result in values.items():
+        key = str(original).strip().casefold()
+        if key in folded:
+            raise ValueError(
+                f"enum keys collide after case-folding: {originals[key]!r} and {original!r}"
+            )
+        folded[key] = result
+        originals[key] = original
+    return folded
 
 TRANSFORMS = {
     "str": to_str,
