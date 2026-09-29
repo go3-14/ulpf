@@ -6,6 +6,7 @@ import shutil
 import threading
 import time
 import inspect
+import hashlib
 from config import SPOOL_DIR, POLL_INTERVAL
 from ingest.pipeline import process
 from ingest.context import IngestContext
@@ -38,6 +39,7 @@ def watch(spool_dir: str | pathlib.Path | None = None,
             logger.warning(f"Could not load state file {state_file}: {e}")
 
     partial_buffers = {}  # filepath -> bytes buffer of trailing un-terminated line
+    fingerprints = state.pop("__fingerprints__", {})
 
     logger.info(f"Starting spool watcher on {s_dir}")
 
@@ -49,6 +51,9 @@ def watch(spool_dir: str | pathlib.Path | None = None,
                     fkey = str(fpath.resolve())
                     if fkey not in state:
                         state[fkey] = 0
+                    if fkey not in fingerprints:
+                        with open(fpath, "rb") as fingerprint_file:
+                            fingerprints[fkey] = hashlib.sha256(fingerprint_file.read(256)).hexdigest()[:16]
 
                     current_offset = state[fkey]
                     file_size = fpath.stat().st_size
@@ -94,7 +99,7 @@ def watch(spool_dir: str | pathlib.Path | None = None,
                                     # The newline is a framing delimiter, not part
                                     # of the event. Preserve all other whitespace
                                     # so raw storage remains lossless.
-                                    _process_line(line, IngestContext(origin="file", origin_id=fpath.name,
+                                    _process_line(line, IngestContext(origin="file", origin_id=fpath.name + "#" + fingerprints[fkey],
                                                                        offset=current_offset, line_no=line_no))
                                 except Exception as ex:
                                     logger.error(f"Error processing line from {fpath.name}: {ex}", exc_info=True)
@@ -104,6 +109,7 @@ def watch(spool_dir: str | pathlib.Path | None = None,
                         # file from replaying an arbitrary offset after crash.
                         tmp_state = state_file.with_suffix(".tmp")
                         with open(tmp_state, "w", encoding="utf-8") as sf:
+                            state["__fingerprints__"] = fingerprints
                             json.dump(state, sf)
                             sf.flush()
                             os.fsync(sf.fileno())

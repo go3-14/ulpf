@@ -1,5 +1,4 @@
 import time
-import uuid
 from ingest.context import IngestContext
 from parsers.detect import detect_format
 from parsers.syslog import parse_syslog
@@ -16,7 +15,9 @@ from storage.raw_store import store_raw
 from storage.normalized_store import store_normalized
 from storage.failed import store_failed
 from storage.index import add_index
+from storage.index import get_index
 from ingest import metrics
+from ingest.identity import event_id_for
 
 PARSERS = {
     "syslog": parse_syslog,
@@ -75,7 +76,10 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         match = re.search(rule.get("regex", ""), str(parsed.get("message", raw_text)))
         if match:
             parsed.update({k: v for k, v in match.groupdict().items() if v is not None})
-    event_id = str(uuid.uuid4())
+    event_id = event_id_for(raw_bytes, ctx)
+    if get_index(event_id) is not None:
+        metrics.record_duplicate()
+        return event_id
     normalized = normalize(parsed, mapping, event_id, source_id, fmt)
 
     try:
@@ -84,8 +88,8 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         return _fail(raw_bytes, f"OCSF validation failed: {e}", fmt, record_failure)
 
     path, offset, length = store_raw(event_id, raw_bytes, source_id)
-    add_index(event_id, path, offset, length)
     store_normalized(event_id, normalized, source_id)
+    add_index(event_id, path, offset, length)
 
     metrics.record_success(fmt, source_id, time.perf_counter() - t0)
     return event_id
