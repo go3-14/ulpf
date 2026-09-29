@@ -9,6 +9,8 @@ from parsers.leef import parse_leef
 from parsers.json_log import parse_json
 from parsers.xml_log import parse_xml
 from parsers.csv_log import parse_csv
+from parsers.text import parse_text
+from parsers.syslog5424 import parse_syslog5424
 from mappings.loader import load_mappings
 from mappings.matcher import identify_source
 from schema.normalize import normalize
@@ -27,7 +29,7 @@ PARSERS = {
     "syslog": parse_syslog,
     "cef": parse_cef,
     "leef": parse_leef,
-    "json": parse_json, "xml": parse_xml, "csv": parse_csv
+    "json": parse_json, "xml": parse_xml, "csv": parse_csv, "text": parse_text, "syslog5424": parse_syslog5424
 }
 
 MAPPINGS = load_mappings()

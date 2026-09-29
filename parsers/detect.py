@@ -10,13 +10,13 @@ def detect_format(raw: str) -> str | None:
         return "json"
     if s.startswith("<?xml") or (s.startswith("<") and s.endswith(">")):
         return "xml"
+    if re.match(r"^<\d{1,3}>[1-9]\d{0,2} ", s):
+        return "syslog5424"
     if "CEF:" in s[:200]:
         return "cef"
     if "LEEF:" in s[:200]:
         return "leef"
     if SYSLOG_HEADER_RE.match(s):
         return "syslog"
-    if "," in s or "\t" in s:
-        return "csv"
-    return None
+    return "text"
 
