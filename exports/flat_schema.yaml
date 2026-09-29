@@ -1,0 +1,10 @@
+common:
+  - {column: event_id, path: metadata.uid, dtype: string}
+  - {column: time, path: time, dtype: timestamp_ms}
+  - {column: class_uid, path: class_uid, dtype: int}
+  - {column: source_id, label: "source:", dtype: string}
+  - {column: severity_id, path: severity_id, dtype: int}
+  - {column: message, path: message, dtype: string}
+always:
+  - {column: unmapped_json, special: unmapped_json}
+  - {column: fallback, special: fallback_flag}
