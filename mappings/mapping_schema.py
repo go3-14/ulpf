@@ -58,6 +58,7 @@ MAPPING_SCHEMA = {
         },
         "defaults": {"type": "object"},
         "extract": {"type": "array", "items": {"type": "object"}}
+        ,"variants": {"type": "array", "items": {"type": "object"}}
     },
     "additionalProperties": True
 }

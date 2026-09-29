@@ -20,6 +20,7 @@ from storage.index import get_index
 from ingest import metrics
 from ingest.identity import event_id_for
 from mappings.extract import apply_extracts
+from mappings.variants import select_variant
 
 PARSERS = {
     "syslog": parse_syslog,
@@ -74,6 +75,7 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         mapping = MAPPINGS[source_id]
 
     apply_extracts(parsed, mapping.get("extract", []))
+    mapping = select_variant(mapping, parsed)
     event_id = event_id_for(raw_bytes, ctx)
     if get_index(event_id) is not None:
         metrics.record_duplicate()
