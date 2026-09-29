@@ -1,5 +1,6 @@
 import time
 import hashlib
+import config
 from ingest.context import IngestContext
 from parsers.detect import detect_format
 from parsers.syslog import parse_syslog
@@ -51,19 +52,23 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         source_id_hint = ctx.source_hint
     raw_text = raw_bytes.decode("utf-8", errors="replace").strip()
     if not raw_text:
+        metrics._metrics["skipped_empty_total"] += 1
+        return None
+    if len(raw_bytes) > config.MAX_LINE_BYTES:
+        metrics._metrics["dropped_total"] += 1
         return None
 
     fmt = detect_format(raw_text)
     if fmt is None:
-        return _fail(raw_bytes, "unrecognized format", None, record_failure)
+        return _fail(raw_bytes, "no_format", None, record_failure, ctx)
 
     parser_fn = PARSERS.get(fmt)
     if not parser_fn:
-        return _fail(raw_bytes, f"no parser registered for format {fmt}", fmt, record_failure)
+        return _fail(raw_bytes, "parse_failed", fmt, record_failure, ctx)
 
     parsed = parser_fn(raw_text)
     if parsed is None:
-        return _fail(raw_bytes, f"failed to parse as {fmt}", fmt, record_failure)
+        return _fail(raw_bytes, "parse_failed", fmt, record_failure, ctx, parsed)
 
     source_id = source_id_hint or identify_source(parsed, fmt, MAPPINGS)
     if source_id is None or source_id not in MAPPINGS:
@@ -85,7 +90,7 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
     try:
         validate_event(normalized)
     except Exception as e:
-        return _fail(raw_bytes, f"OCSF validation failed: {e}", fmt, record_failure)
+        return _fail(raw_bytes, "validation_failed", fmt, record_failure, ctx, parsed)
 
     path, offset, length = store_raw(event_id, raw_bytes, source_id)
     norm_path, norm_offset, norm_length = store_normalized(event_id, normalized, source_id)
@@ -100,12 +105,34 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
     metrics.record_success(fmt, source_id, time.perf_counter() - t0)
     return event_id
 
-def _fail(raw_bytes, reason, fmt, record_failure=True):
+def _fail(raw_bytes, reason, fmt, record_failure=True, ctx=None, parsed=None):
     """Record new ingestion failures, but never duplicate them during replay."""
+    if record_failure and getattr(config, "FALLBACK_MODE", "basevent") == "basevent":
+        return _fallback(raw_bytes, reason, fmt, ctx, parsed)
     if record_failure:
         store_failed(raw_bytes, reason)
         metrics.record_failure(fmt, reason)
     return None
+
+def _fallback(raw_bytes, reason, fmt, ctx, parsed=None):
+    event_id = event_id_for(raw_bytes, ctx)
+    if get_index(event_id) is not None:
+        metrics.record_duplicate(); return event_id
+    event = {"class_uid": 0, "category_uid": 0, "activity_id": 0, "type_uid": 0,
+             "severity_id": 0, "time": ctx.received_ms,
+             "metadata": {"uid": event_id, "version": "1.9.0", "logged_time": ctx.received_ms,
+                          "product": {"name": "ULPF", "vendor_name": "ULPF"},
+                          "labels": ["ulpf", "fallback:true", f"fallback_reason:{reason}", f"format:{fmt or 'unknown'}"]},
+             "message": raw_bytes.decode("utf-8", errors="replace")}
+    if parsed: event["unmapped"] = parsed
+    path, offset, length = store_raw(event_id, raw_bytes, "ulpf_fallback")
+    norm_path, norm_offset, norm_length = store_normalized(event_id, event, "ulpf_fallback")
+    add_index(event_id, path, offset, length, fallback=True, origin=ctx.origin, origin_id=ctx.origin_id,
+              origin_offset=ctx.offset, origin_line=ctx.line_no, received_ms=ctx.received_ms,
+              source_id="ulpf_fallback", format=fmt or "unknown", norm_file=norm_path,
+              norm_offset=norm_offset, norm_length=norm_length, raw_sha256=hashlib.sha256(raw_bytes).hexdigest())
+    metrics.record_fallback(reason)
+    return event_id
 
 def replay_failed(storage_dir=None, limit=None):
     from storage.failed import iter_failed

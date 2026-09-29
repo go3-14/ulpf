@@ -23,3 +23,5 @@ NORMALIZED_CACHE_MAX = int(os.environ.get("ULPF_NORMALIZED_CACHE_MAX", "10000"))
 ULPF_FSYNC = os.environ.get("ULPF_FSYNC", "batch").lower()
 if ULPF_FSYNC not in {"off", "batch", "every"}:
     raise ValueError("ULPF_FSYNC must be off, batch, or every")
+FALLBACK_MODE = os.environ.get("ULPF_FALLBACK_MODE", "basevent")
+MAX_LINE_BYTES = int(os.environ.get("ULPF_MAX_LINE_BYTES", str(1024 * 1024)))
