@@ -65,6 +65,12 @@ class PartitionedNDJSONWriter:
             handle.write(line)
             length = len(line_bytes)
             handle.flush()
+            import config
+            if config.ULPF_FSYNC == "every":
+                try:
+                    os.fsync(handle.fileno())
+                except OSError:
+                    pass
             
             key = str(file_path.resolve())
             self._counts[key] = self._counts.get(key, 0) + 1
@@ -80,10 +86,12 @@ class PartitionedNDJSONWriter:
                 if file_lock:
                     with file_lock:
                         handle.flush()
-                        try:
-                            os.fsync(handle.fileno())
-                        except OSError:
-                            pass
+                        import config
+                        if config.ULPF_FSYNC != "off":
+                            try:
+                                os.fsync(handle.fileno())
+                            except OSError:
+                                pass
                         self._counts[key] = 0
 
     def close_all(self):
@@ -95,7 +103,9 @@ class PartitionedNDJSONWriter:
                         with file_lock:
                             try:
                                 handle.flush()
-                                os.fsync(handle.fileno())
+                                import config
+                                if config.ULPF_FSYNC != "off":
+                                    os.fsync(handle.fileno())
                             except OSError:
                                 pass
                             handle.close()
