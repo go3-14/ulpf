@@ -44,15 +44,17 @@ def normalize(parsed: dict, config: dict, event_id: str,
     for src_key, spec in (config.get("field_map") or {}).items():
         if src_key not in parsed:
             continue
-        consumed.add(src_key)
         value = parsed[src_key]
-        if value in (None, ""):
+        if value is None or (isinstance(value, str) and not value.strip()):
             continue
         try:
-            set_nested(out, spec["to"], apply_transform(value, spec))
+            result = apply_transform(value, spec)
+            if result is None:
+                continue
+            set_nested(out, spec["to"], result)
+            consumed.add(src_key)
         except (TransformError, ValueError) as e:
             transform_errors.append(f"{src_key}->{spec['to']}: {e}")
-            consumed.discard(src_key)
 
     # 4. defaults for anything the source didn't supply
     for path, value in (config.get("defaults") or {}).items():
