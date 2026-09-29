@@ -19,3 +19,4 @@ TLS_KEY = os.environ.get("ULPF_TLS_KEY")
 
 LOG_LEVEL = os.environ.get("ULPF_LOG_LEVEL", "INFO")
 POLL_INTERVAL = float(os.environ.get("ULPF_POLL_INTERVAL", "1.0"))
+NORMALIZED_CACHE_MAX = int(os.environ.get("ULPF_NORMALIZED_CACHE_MAX", "10000"))

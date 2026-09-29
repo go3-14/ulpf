@@ -2,23 +2,31 @@ import glob
 import json
 import pathlib
 import config
+from collections import OrderedDict
 from storage.writer import PartitionedNDJSONWriter
 
 NORM_WRITER = PartitionedNDJSONWriter(subfolder="normalized")
 
 # In-memory event cache: event_id -> normalized OCSF dict
 # Provides O(1) lookup for GET /events/{id} for events ingested in this process lifetime.
-_EVENTS: dict[str, dict] = {}
+_EVENTS: "OrderedDict[str, dict]" = OrderedDict()
+
+def _cache_put(event_id: str, event: dict) -> None:
+    _EVENTS.pop(event_id, None)
+    _EVENTS[event_id] = event
+    while len(_EVENTS) > getattr(config, "NORMALIZED_CACHE_MAX", 10000):
+        _EVENTS.popitem(last=False)
 
 
 def store_normalized(event_id: str, normalized: dict, source_id: str) -> tuple:
-    _EVENTS[event_id] = normalized
+    _cache_put(event_id, normalized)
     return NORM_WRITER.write(source_id, normalized, prefix="events")
 
 
 def get_normalized(event_id: str) -> dict | None:
     # O(1) path — in-memory hit
     if event_id in _EVENTS:
+        _EVENTS.move_to_end(event_id)
         return _EVENTS[event_id]
 
     # O(n) fallback — scan disk for events from a previous process run
@@ -34,7 +42,7 @@ def get_normalized(event_id: str) -> dict | None:
                         continue
                     ev = json.loads(line)
                     if ev.get("metadata", {}).get("uid") == event_id:
-                        _EVENTS[event_id] = ev  # populate cache for next call
+                        _cache_put(event_id, ev)  # populate cache for next call
                         return ev
         except Exception:
             continue
@@ -104,6 +112,5 @@ def search_normalized(
 
 def reset_writers():
     """Close all writers and clear the in-memory cache. Used by tests for isolation."""
-    global _EVENTS
-    _EVENTS = {}
+    _EVENTS.clear()
     NORM_WRITER.close_all()
