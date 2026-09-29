@@ -14,6 +14,7 @@ import yaml
 from storage.normalized_store import get_normalized, search_normalized
 from storage.raw_store import read_raw
 from storage.index import get_record
+from ingest.coverage import report as coverage_report
 
 app = FastAPI(title="ULPF - Universal Log Pre-processing Framework API", version="3.0.0")
 
@@ -85,6 +86,10 @@ def search_events(
 @app.get("/metrics")
 def get_metrics_endpoint():
     return metrics.get_metrics()
+
+@app.get("/coverage")
+def coverage(source: str | None = None):
+    return coverage_report(source)
 
 @app.post("/ingest")
 def ingest_logs(payload: IngestRequest, x_api_key: str | None = Header(default=None)):

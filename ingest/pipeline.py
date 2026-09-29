@@ -22,6 +22,7 @@ from storage.index import add_index
 from storage.index import get_index
 from ingest import metrics
 from ingest.identity import event_id_for
+from ingest.coverage import record as record_coverage
 from mappings.extract import apply_extracts
 from mappings.variants import select_variant
 
@@ -88,6 +89,7 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         metrics.record_duplicate()
         return event_id
     normalized = normalize(parsed, mapping, event_id, source_id, fmt)
+    record_coverage(source_id, parsed, {key: value for key, value in parsed.items() if key not in normalized.get("unmapped", {})})
 
     try:
         validate_event(normalized)
