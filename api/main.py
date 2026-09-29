@@ -3,6 +3,7 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 from ingest import metrics
 from ingest.pipeline import process, reload_mappings, replay_failed, MAPPINGS, PARSERS
+from ingest.context import IngestContext
 from parsers.detect import detect_format
 from schema.normalize import normalize
 from schema.validate import validate_event
@@ -73,7 +74,7 @@ def ingest_logs(payload: IngestRequest):
     event_ids = []
     for line in lines:
         if line.strip():
-            eid = process(line.encode("utf-8"))
+            eid = process(line.encode("utf-8"), ctx=IngestContext(origin="http"))
             if eid:
                 event_ids.append(eid)
     return {"processed": len(event_ids), "event_ids": event_ids}

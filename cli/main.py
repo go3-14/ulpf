@@ -7,6 +7,7 @@ import uvicorn
 from config import API_HOST, API_PORT, LOG_LEVEL, TCP_PORT, TLS_CERT, TLS_KEY
 from ingest import metrics
 from ingest.pipeline import process, reload_mappings, replay_failed
+from ingest.context import IngestContext
 from ingest.syslog_listener import listen
 from ingest.watcher import watch
 from storage.normalized_store import get_normalized, search_normalized
@@ -38,10 +39,10 @@ def cmd_process(args):
         except json.JSONDecodeError:
             pass
 
-    for line in lines:
+    for line_no, line in enumerate(lines, 1):
         if not line.strip():
             continue
-        eid = process(line)
+        eid = process(line, ctx=IngestContext(origin="file", origin_id=str(filepath).replace("\\", "/"), line_no=line_no))
         if eid:
             processed += 1
             print(f"PROCESSED: {eid}")

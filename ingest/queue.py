@@ -1,6 +1,7 @@
 import queue
 import threading
 from ingest.pipeline import process
+from ingest.context import IngestContext
 
 class IngestionQueue:
     """Bounded producer/consumer queue; put() blocks for backpressure."""
@@ -11,13 +12,13 @@ class IngestionQueue:
     def start(self):
         for t in self.threads: t.start()
         return self
-    def put(self, raw, timeout=None):
-        self.items.put(raw, timeout=timeout)
+    def put(self, raw, timeout=None, ctx: IngestContext | None = None):
+        self.items.put((raw, ctx), timeout=timeout)
     def _worker(self):
         while not self.stop.is_set() or not self.items.empty():
-            try: raw = self.items.get(timeout=.2)
+            try: raw, ctx = self.items.get(timeout=.2)
             except queue.Empty: continue
-            try: process(raw)
+            try: process(raw, ctx=ctx)
             finally: self.items.task_done()
     def close(self):
         self.stop.set()

@@ -5,11 +5,19 @@ import pathlib
 import shutil
 import threading
 import time
+import inspect
 from config import SPOOL_DIR, POLL_INTERVAL
 from ingest.pipeline import process
+from ingest.context import IngestContext
 from storage.writer import flush_all
 
 logger = logging.getLogger("ulpf.watcher")
+
+def _process_line(line, ctx):
+    """Keep compatibility with simple process stubs used by integrations/tests."""
+    if "ctx" in inspect.signature(process).parameters:
+        return process(line, ctx=ctx)
+    return process(line)
 
 def watch(spool_dir: str | pathlib.Path | None = None,
           poll_interval: float = POLL_INTERVAL,
@@ -79,14 +87,15 @@ def watch(spool_dir: str | pathlib.Path | None = None,
                         # with only future bytes on the next poll.
                         state[fkey] += len(new_bytes)
 
-                        for line in complete_lines:
+                        for line_no, line in enumerate(complete_lines, 1):
                             line_stripped = line.strip()
                             if line_stripped:
                                 try:
                                     # The newline is a framing delimiter, not part
                                     # of the event. Preserve all other whitespace
                                     # so raw storage remains lossless.
-                                    process(line)
+                                    _process_line(line, IngestContext(origin="file", origin_id=fpath.name,
+                                                                       offset=current_offset, line_no=line_no))
                                 except Exception as ex:
                                     logger.error(f"Error processing line from {fpath.name}: {ex}", exc_info=True)
 

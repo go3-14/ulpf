@@ -1,5 +1,6 @@
 import time
 import uuid
+from ingest.context import IngestContext
 from parsers.detect import detect_format
 from parsers.syslog import parse_syslog
 from parsers.cef import parse_cef
@@ -37,8 +38,13 @@ def reload_mappings(directory=None):
     return len(MAPPINGS)
 
 def process(raw_bytes: bytes, source_id_hint: str | None = None,
-            record_failure: bool = True) -> str | None:
+            record_failure: bool = True, *, ctx: IngestContext | None = None) -> str | None:
     t0 = time.perf_counter()
+    if ctx is None:
+        now_ms = int(time.time() * 1000)
+        ctx = IngestContext(origin="cli", received_ms=now_ms, reference_ms=now_ms)
+    if source_id_hint is None:
+        source_id_hint = ctx.source_hint
     raw_text = raw_bytes.decode("utf-8", errors="replace").strip()
     if not raw_text:
         return None
