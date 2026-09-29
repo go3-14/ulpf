@@ -15,6 +15,7 @@ match:
       regex: "^%ASA-"
 
 extract:
+  - regex: "^(?P<action>Built|Teardown|Reset|Deny|Denied)\\b(?:\\s+(?P<proto>TCP|UDP|ICMP|IP))?"
   - regex: "(?:for|from)\\s+(?P<src_if>\\w+):(?P<src>[\\d.]+)/(?P<spt>\\d+)(?:\\s*\\([\\d./]+\\))?\\s+to\\s+(?P<dst_if>\\w+):(?P<dst>[\\d.]+)/(?P<dpt>\\d+)"
   - regex: "Deny\\s+(?P<proto>\\w+)\\s+src\\s+(?P<src_if>\\w+):(?P<src>[\\d.]+)/(?P<spt>\\d+)\\s+dst\\s+(?P<dst_if>\\w+):(?P<dst>[\\d.]+)/(?P<dpt>\\d+)"
 

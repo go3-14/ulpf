@@ -14,7 +14,7 @@ def detect_format(raw: str) -> str | None:
         return "cef"
     if "LEEF:" in s[:200]:
         return "leef"
-    if SYSLOG_HEADER_RE.match(s) or "%ASA-" in s:
+    if SYSLOG_HEADER_RE.match(s):
         return "syslog"
     if "," in s or "\t" in s:
         return "csv"

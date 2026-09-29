@@ -13,17 +13,7 @@ KEY_VALUE_TOKEN = re.compile(r"^[A-Za-z0-9_.\-]+=")
 def parse_syslog(raw_log: str) -> dict | None:
     """Parse a Syslog line into a structured dictionary.
 
-    Example input:
-        <134>Jan 10 10:00:00 fw01 %ASA-6-302013: Built inbound TCP connection 12345 for outside:192.168.1.50/49152 to inside:10.0.0.5/80
-
-    Example output:
-        {
-            "pri": 134, "facility": 16, "severity": 6,
-            "timestamp": "Jan 10 10:00:00", "hostname": "fw01",
-            "tag": "%ASA-6-302013:", "message": "...", "action": "Built",
-            "proto": "TCP", "src": "192.168.1.50", "spt": 49152,
-            "dst": "10.0.0.5", "dpt": 80, "ifname": "outside"
-        }
+    Parse only the syslog envelope and generic key/value fields.
     """
     s = raw_log.strip()
     if not s:
@@ -69,17 +59,5 @@ def parse_syslog(raw_log: str) -> dict | None:
     res.update(kv_extract(msg))
     # Generic network-event envelope; vendor-specific semantics stay in YAML.
     res.update(extract_generic_connection(msg))
-
-    # Action detection heuristic if action not explicitly parsed
-    if "action" not in res:
-        first_word = msg.split()[0] if msg.split() else ""
-        if first_word in ("Built", "Teardown", "Reset", "Deny", "Denied"):
-            res["action"] = first_word
-
-    if "proto" not in res:
-        for p in ("TCP", "UDP", "ICMP", "IP"):
-            if f" {p} " in msg or f" {p.lower()} " in msg:
-                res["proto"] = p
-                break
 
     return res
