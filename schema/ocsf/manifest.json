@@ -8,5 +8,12 @@
       "uri": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity"
     }
   ],
-  "root_uri": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity"
+  "root_uri": "https://schema.ocsf.io/schema/1.9.0/classes/network_activity",
+  "classes": {
+    "0": {"name": "Base Event", "category_uid": 0, "file": "classes/base_event.json"},
+    "3002": {"name": "Authentication", "category_uid": 3, "file": "classes/authentication.json"},
+    "4001": {"name": "Network Activity", "category_uid": 4, "file": "classes/network_activity.json"},
+    "4002": {"name": "HTTP Activity", "category_uid": 4, "file": "classes/http_activity.json"},
+    "6003": {"name": "API Activity", "category_uid": 6, "file": "classes/api_activity.json"}
+  }
 }
