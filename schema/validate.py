@@ -1,8 +1,7 @@
 """Offline OCSF Network Activity validation using only bundled schema files.
 
 Uses the bundled OCSF 1.9.0 network_activity.json (self-contained with all $defs
-inline) for validation. additionalProperties restrictions are stripped before
-validation so ULPF extension fields (unmapped, logged_time, etc.) are allowed.
+inline) for strict validation.
 
 The validator is built once and cached; validate_event() has near-zero overhead
 after the first call.
@@ -20,22 +19,6 @@ _CLASS_SCHEMA_PATH = SCHEMA_DIR / "classes" / "network_activity.json"
 _MANIFEST_PATH = SCHEMA_DIR / "manifest.json"
 
 
-def _strip_additional_properties(schema: object) -> object:
-    """Recursively remove additionalProperties: false from the schema.
-
-    The full OCSF 1.9.0 schema sets additionalProperties: false on every object.
-    ULPF adds extension fields (unmapped, logged_time, labels, etc.) that are
-    valid per the spec but would be rejected. We validate structure and types only.
-    """
-    if isinstance(schema, dict):
-        cleaned = {k: _strip_additional_properties(v) for k, v in schema.items()
-                   if not (k == "additionalProperties" and v is False)}
-        return cleaned
-    if isinstance(schema, list):
-        return [_strip_additional_properties(item) for item in schema]
-    return schema
-
-
 @lru_cache(maxsize=1)
 def _get_validator() -> Draft202012Validator:
     """Build and cache the validator from bundled OCSF 1.9.0 schema.
@@ -51,7 +34,6 @@ def _get_validator() -> Draft202012Validator:
         for resource_info in manifest["resources"]:
             path = SCHEMA_DIR / resource_info["path"]
             document = json.loads(path.read_text(encoding="utf-8"))
-            document = _strip_additional_properties(document)
             resource = Resource.from_contents(document, default_specification=DRAFT202012)
             registry = registry.with_resource(resource_info["uri"], resource)
             declared_uri = document.get("$id")
@@ -67,7 +49,6 @@ def _get_validator() -> Draft202012Validator:
     # Fallback: legacy hand-written subset schema (documented as subset in README)
     legacy_path = SCHEMA_DIR / "network_activity.schema.json"
     schema = json.loads(legacy_path.read_text(encoding="utf-8"))
-    schema = _strip_additional_properties(schema)
     return Draft202012Validator(schema)
 
 
