@@ -19,8 +19,8 @@ _CLASS_SCHEMA_PATH = SCHEMA_DIR / "classes" / "network_activity.json"
 _MANIFEST_PATH = SCHEMA_DIR / "manifest.json"
 
 
-@lru_cache(maxsize=1)
-def _get_validator() -> Draft202012Validator:
+@lru_cache(maxsize=None)
+def get_validator(class_uid: int) -> Draft202012Validator:
     """Build and cache the validator from bundled OCSF 1.9.0 schema.
 
     Prefers the full manifest-based 1.9.0 schema. Falls back to the legacy
@@ -28,6 +28,12 @@ def _get_validator() -> Draft202012Validator:
     """
     if _CLASS_SCHEMA_PATH.exists() and _MANIFEST_PATH.exists():
         manifest = json.loads(_MANIFEST_PATH.read_text(encoding="utf-8"))
+        class_info = manifest.get("classes", {}).get(str(class_uid))
+        if class_uid != 4001 and class_info is None:
+            raise KeyError(class_uid)
+        if class_info and class_uid != 4001:
+            document = json.loads((SCHEMA_DIR / class_info["file"]).read_text(encoding="utf-8"))
+            return Draft202012Validator(document)
         registry = Registry()
         root = None
 
@@ -58,11 +64,13 @@ def validate_event(event: dict) -> None:
     Raises ValueError with a human-readable dot-path on the first failure.
     Returns None silently on success.
     """
-    if event.get("class_uid") != 4001:
-        if not isinstance(event.get("class_uid"), int) or not isinstance(event.get("metadata"), dict):
-            raise ValueError("unmapped OCSF event requires class_uid and metadata")
-        return
-    validator = _get_validator()
+    class_uid = event.get("class_uid")
+    if not isinstance(class_uid, int):
+        raise ValueError("event class_uid must be an integer")
+    try:
+        validator = get_validator(class_uid)
+    except KeyError as exc:
+        raise ValueError(f"unsupported OCSF class_uid: {class_uid}") from exc
     errors = sorted(validator.iter_errors(event), key=lambda e: [str(p) for p in e.path])
     if errors:
         e = errors[0]
