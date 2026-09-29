@@ -1,4 +1,5 @@
 import time
+import hashlib
 from ingest.context import IngestContext
 from parsers.detect import detect_format
 from parsers.syslog import parse_syslog
@@ -88,8 +89,14 @@ def process(raw_bytes: bytes, source_id_hint: str | None = None,
         return _fail(raw_bytes, f"OCSF validation failed: {e}", fmt, record_failure)
 
     path, offset, length = store_raw(event_id, raw_bytes, source_id)
-    store_normalized(event_id, normalized, source_id)
-    add_index(event_id, path, offset, length)
+    norm_path, norm_offset, norm_length = store_normalized(event_id, normalized, source_id)
+    add_index(event_id, path, offset, length,
+              raw_sha256=hashlib.sha256(raw_bytes).hexdigest(), origin=ctx.origin,
+              origin_id=ctx.origin_id, origin_offset=ctx.offset, origin_line=ctx.line_no,
+              received_ms=ctx.received_ms, source_id=source_id, format=fmt,
+              class_uid=normalized.get("class_uid"), time_ms=normalized.get("time"),
+              mapping_id=source_id, mapping_version=mapping.get("mapping_version", "1"),
+              norm_file=norm_path, norm_offset=norm_offset, norm_length=norm_length)
 
     metrics.record_success(fmt, source_id, time.perf_counter() - t0)
     return event_id

@@ -12,6 +12,7 @@ from ingest.syslog_listener import listen
 from ingest.watcher import watch
 from storage.normalized_store import get_normalized, search_normalized
 from storage.raw_store import read_raw
+from storage.index import get_record
 
 def setup_logging():
     logging.basicConfig(
@@ -97,6 +98,9 @@ def cmd_lookup(args):
         print(raw.decode("utf-8", errors="replace"))
     else:
         print("<NOT FOUND>")
+    if args.provenance:
+        print("\n=== PROVENANCE ===")
+        print(json.dumps(get_record(event_id) or {}, indent=2, default=str))
 
     print("\n=== NORMALIZED OCSF EVENT ===")
     if norm:
@@ -175,6 +179,7 @@ def main():
     # lookup
     p_look = subparsers.add_parser("lookup", help="Lookup event by ID (raw and normalized)")
     p_look.add_argument("event_id", help="Event UUID")
+    p_look.add_argument("--provenance", action="store_true", help="Include ingestion provenance")
     p_look.set_defaults(func=cmd_lookup)
 
     # search

@@ -13,6 +13,7 @@ import time
 import yaml
 from storage.normalized_store import get_normalized, search_normalized
 from storage.raw_store import read_raw
+from storage.index import get_record
 
 app = FastAPI(title="ULPF - Universal Log Pre-processing Framework API", version="3.0.0")
 
@@ -36,6 +37,17 @@ def get_event_raw(event_id: str):
     if not raw_bytes:
         raise HTTPException(status_code=404, detail=f"Raw log for Event ID {event_id} not found")
     return Response(content=raw_bytes, media_type="text/plain")
+
+@app.get("/events/{event_id}/provenance")
+def get_event_provenance(event_id: str):
+    record = get_record(event_id)
+    if not record:
+        raise HTTPException(status_code=404, detail=f"Event ID {event_id} not found")
+    fields = ("event_id", "origin", "origin_id", "origin_offset", "origin_line",
+              "mapping_id", "mapping_version", "mapping_sha256", "raw_sha256")
+    result = {key: record.get(key) for key in fields}
+    result["ulpf_version"] = app.version
+    return result
 
 @app.get("/events")
 def search_events(
