@@ -43,7 +43,20 @@ def load_mappings(directory: str | pathlib.Path | None = None) -> dict:
         cfg = yaml.load(raw.decode("utf-8"), Loader=ULPFSafeLoader)
         if not isinstance(cfg, dict):
             continue
-        js_validate(cfg, MAPPING_SCHEMA)
+        for rule in cfg.get("extract", []) or []:
+            pattern = rule.get("regex")
+            if pattern is not None:
+                try:
+                    re.compile(pattern)
+                except re.error as exc:
+                    raise ValueError(f"{f}: invalid extract regex: {exc}") from exc
+        for source, spec in (cfg.get("field_map") or {}).items():
+            if spec.get("type") not in {"str", "int", "float", "bool", "ip", "port", "enum", "epoch_ms"}:
+                raise ValueError(f"{f}: unknown transform type for {source}: {spec.get('type')}")
+        try:
+            js_validate(cfg, MAPPING_SCHEMA)
+        except Exception as exc:
+            raise ValueError(f"{f}: mapping schema error: {exc}") from exc
         cfg = MappingSpec(cfg)
         cfg.setdefault("version", "1")
         cfg["sha256"] = hashlib.sha256(raw).hexdigest()
