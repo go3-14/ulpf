@@ -3,3 +3,4 @@ fastapi
 uvicorn
 jsonschema
 referencing
+tzdata==2025.2
