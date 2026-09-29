@@ -6,6 +6,8 @@ from ingest.pipeline import PARSERS
 from parsers.detect import detect_format
 from schema.normalize import normalize
 from schema.validate import validate_event
+from mappings.extract import apply_extracts
+from mappings.variants import select_variant
 
 def _get_path(value, path):
     for part in path.split("."):
@@ -21,6 +23,8 @@ def run(directory=None, mapping_id=None):
             raw = case["raw"]
             fmt = mapping.get("format") or detect_format(raw)
             parsed = PARSERS[fmt](raw)
+            apply_extracts(parsed, mapping.get("extract", []))
+            mapping = select_variant(mapping, parsed)
             event = normalize(parsed, mapping, "mapping-test", source, fmt)
             validate_event(event)
             for path, expected in (case.get("expect") or {}).items():

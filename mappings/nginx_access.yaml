@@ -1,0 +1,24 @@
+source: nginx_access
+version: "1"
+format: text
+priority: 70
+ocsf: {version: "1.9.0", class_uid: 4002, category_uid: 4}
+match:
+  all:
+    - field: message
+      regex: '^[0-9.]+ - '
+extract:
+  - regex: '^(?P<src>[0-9.]+).*?"(?P<method>[A-Z]+) (?P<url>[^ ]+) HTTP/[0-9.]+".* (?P<status>[0-9]{3})'
+field_map:
+  src: {to: src_endpoint.ip, type: ip}
+  method: {to: message, type: str}
+  url: {to: request_url, type: str}
+  status: {to: activity_id, type: int}
+defaults: {severity_id: 1}
+tests:
+  - name: get
+    raw: '203.0.113.5 - - [29/Sep/2026:10:15:32 +0000] "GET /index.html HTTP/1.1" 200 42'
+    expect: {class_uid: 4002, request_url: /index.html}
+  - name: not found
+    raw: '203.0.113.5 - - [29/Sep/2026:10:15:33 +0000] "GET /missing HTTP/1.1" 404 10'
+    expect: {class_uid: 4002, request_url: /missing}

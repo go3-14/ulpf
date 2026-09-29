@@ -1,0 +1,21 @@
+source: linux_sshd
+version: "1"
+format: syslog
+priority: 80
+ocsf: {version: "1.9.0", class_uid: 3002, category_uid: 3}
+match: {all: [{field: tag, equals: sshd}]}
+extract:
+  - regex: "^(?P<status>Failed|Accepted)\\s+\\w+\\s+for\\s+(?:invalid user\\s+)?(?P<user>\\S+)\\s+from\\s+(?P<src>[\\d.]+)\\s+port\\s+(?P<port>\\d+)"
+field_map:
+  user: {to: user_name, type: str}
+  src: {to: src_endpoint.ip, type: ip}
+  port: {to: src_endpoint.port, type: port}
+  status: {to: message, type: str}
+defaults: {activity_id: 1, severity_id: 1}
+tests:
+  - name: failed password
+    raw: "<34>Sep 29 10:15:32 host sshd: Failed password for invalid user bob from 203.0.113.5 port 22"
+    expect: {class_uid: 3002, user_name: bob}
+  - name: accepted key
+    raw: "<34>Sep 29 10:15:32 host sshd: Accepted publickey for alice from 203.0.113.5 port 22"
+    expect: {class_uid: 3002, user_name: alice}
