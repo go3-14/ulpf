@@ -1,4 +1,5 @@
 import glob
+import hashlib
 import pathlib
 import re
 import yaml
@@ -23,15 +24,29 @@ ULPFSafeLoader.add_implicit_resolver(
 
 MAPPINGS_DIR = pathlib.Path(__file__).parent.resolve()
 
+class MappingSpec(dict):
+    @property
+    def id(self):
+        return self.get("source")
+    @property
+    def version(self):
+        return self.get("version", "1")
+    @property
+    def sha256(self):
+        return self.get("sha256")
+
 def load_mappings(directory: str | pathlib.Path | None = None) -> dict:
     d = pathlib.Path(directory) if directory else MAPPINGS_DIR
     registry = {}
     for f in sorted(glob.glob(str(d / "*.yaml"))):
-        with open(f, encoding="utf-8") as fh:
-            cfg = yaml.load(fh, Loader=ULPFSafeLoader)
+        raw = pathlib.Path(f).read_bytes()
+        cfg = yaml.load(raw.decode("utf-8"), Loader=ULPFSafeLoader)
         if not isinstance(cfg, dict):
             continue
         js_validate(cfg, MAPPING_SCHEMA)
+        cfg = MappingSpec(cfg)
+        cfg.setdefault("version", "1")
+        cfg["sha256"] = hashlib.sha256(raw).hexdigest()
         for spec in (cfg.get("field_map") or {}).values():
             if spec.get("type") == "enum":
                 spec["_folded_values"] = compile_enum_values(spec.get("values") or {})
